@@ -1,0 +1,94 @@
+openapi: 3.0.0
+info:
+  title: API Alertes Citoyennes
+  version: 1.0.0
+  description: API permettant de remonter et gérer des alertes citoyennes
+servers:
+  - url: http://localhost:3000
+
+paths:
+  /api/alerts:
+    get:
+      summary: Récupère la liste des alertes citoyennes
+      responses:
+        '200':
+          description: Liste récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alerte'
+    post:
+      summary: Crée une nouvelle alerte citoyenne
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlerteInput'
+      responses:
+        '201':
+          description: Alerte créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alerte'
+
+  /api/alerts/{id}:
+    get:
+      summary: Récupère une alerte spécifique par son identifiant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l’alerte à récupérer
+      responses:
+        '200':
+          description: Détails de l’alerte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alerte'
+        '404':
+          description: Alerte non trouvée
+    put:
+      summary: Met à jour une alerte existante
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l’alerte à mettre à jour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlerteInput'
+      responses:
+        '200':
+          description: Alerte mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alerte'
+        '404':
+          description: Alerte non trouvée
+    delete:
+      summary: Supprime une alerte existante
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l’alerte à supprimer
+      responses:
+        '204':
+          description: Alerte supprimée avec succès
+        '404':
+          description: Alerte non trouvée
