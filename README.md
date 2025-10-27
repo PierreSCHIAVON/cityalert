@@ -1,7 +1,7 @@
 # CityAlert
 🚨 API Alertes Citoyennes
 
-Cette application Express.js permet de remonter et gérer des alertes citoyennes signalées par les utilisateurs.
+Ce webservice permet de remonter et gérer des alertes citoyennes signalées par les utilisateurs.
 Elle inclut une documentation interactive générée avec Swagger UI.
 
 🧰 Prérequis
@@ -54,20 +54,6 @@ Tu pourras y visualiser et tester les différentes routes de ton API.
 │   └── alerts.js     # Exemple de route : gestion des alertes citoyennes
 ├── package.json      # Informations et dépendances du projet
 └── README.md         # Documentation du projet
-
-🧩 Exemple de route documentée
-/**
- * @swagger
- * /api/alerts:
- *   get:
- *     summary: Récupère la liste des alertes citoyennes
- *     responses:
- *       200:
- *         description: Liste des alertes récupérée avec succès
- */
-router.get('/', (req, res) => {
-  res.json([{ id: 1, titre: 'Nid de poule', statut: 'ouvert' }]);
-});
 
 🧪 Scripts disponibles
 Commande	Description
