@@ -1,0 +1,30 @@
+openapi: 3.0.0
+info:
+  title: API Alertes Citoyennes
+  version: 1.0.0
+  description: API permettant de remonter et gérer des alertes citoyennes
+servers:
+  - url: http://localhost:3000
+paths:
+  /api/alerts:
+    get:
+      summary: Récupère la liste des alertes citoyennes
+      responses:
+        '200':
+          description: Liste récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: integer
+                      example: 1
+                    titre:
+                      type: string
+                      example: Nid de poule
+                    statut:
+                      type: string
+                      example: ouvert
