@@ -1,5 +1,6 @@
 const express = require('express');
 const setupSwagger = require('./swagger');
+const alertsRouter = require('./routes/alerts');
 
 const app = express();
 const port = 3000;
@@ -7,13 +8,11 @@ const port = 3000;
 // Middleware pour parser le JSON
 app.use(express.json());
 
-// Exemple de route
-app.get('/', (req, res) => {
-    res.send('Bienvenue sur l’API Alertes Citoyennes 🚨');
-});
-
 // Initialisation de Swagger
 setupSwagger(app);
+
+// Initialisation des routes
+app.use('/api/alerts', alertsRouter);
 
 // Démarrage du serveur
 app.listen(port, () => {
