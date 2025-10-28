@@ -1,0 +1,215 @@
+openapi: 3.0.0
+info:
+  title: API Alertes Citoyennes
+  version: 1.0.0
+  description: API permettant de remonter et gérer des alertes citoyennes
+
+servers:
+  - url: http://localhost:3000
+
+# Sécurité globale : toutes les routes requièrent JWT sauf celles qui la désactivent explicitement
+security:
+  - bearerAuth: []
+
+paths:
+  /api/alerts:
+    get:
+      summary: Récupère la liste des alertes citoyennes
+      responses:
+        '200':
+          description: Liste récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alerte'
+        '401':
+          description: Utilisateur non authentifié
+    post:
+      summary: Crée une nouvelle alerte citoyenne
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlerteInput'
+      responses:
+        '201':
+          description: Alerte créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alerte'
+        '401':
+          description: Utilisateur non authentifié
+
+  /api/alerts/{id}:
+    get:
+      summary: Récupère une alerte spécifique par son identifiant
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l’alerte à récupérer
+      responses:
+        '200':
+          description: Détails de l’alerte
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alerte'
+        '404':
+          description: Alerte non trouvée
+        '401':
+          description: Utilisateur non authentifié
+    put:
+      summary: Met à jour une alerte existante
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l’alerte à mettre à jour
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlerteInput'
+      responses:
+        '200':
+          description: Alerte mise à jour avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Alerte'
+        '404':
+          description: Alerte non trouvée
+        '401':
+          description: Utilisateur non authentifié
+    delete:
+      summary: Supprime une alerte existante
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID de l’alerte à supprimer
+      responses:
+        '204':
+          description: Alerte supprimée avec succès
+        '404':
+          description: Alerte non trouvée
+        '401':
+          description: Utilisateur non authentifié
+
+  # Routes publiques pour l'authentification
+  /auth:
+    post:
+      summary: Authentifie un utilisateur via le service externe
+      security: [] # Route publique
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+                  description: Jeton d’authentification fourni par le service externe
+              required:
+                - token
+      responses:
+        '200':
+          description: Utilisateur authentifié avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  authenticated:
+                    type: boolean
+                    example: true
+        '401':
+          description: Jeton invalide ou utilisateur non authentifié
+
+  /auth/me:
+    get:
+      summary: Récupère les informations de l’utilisateur connecté
+      responses:
+        '200':
+          description: Informations de l’utilisateur
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Utilisateur non authentifié
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Alerte:
+      type: object
+      properties:
+        id:
+          type: integer
+        titre:
+          type: string
+        description:
+          type: string
+        dateCreation:
+          type: string
+          format: date-time
+        statut:
+          type: string
+          enum: [ouverte, en_cours, resolue]
+      required:
+        - id
+        - titre
+        - description
+        - dateCreation
+        - statut
+
+    AlerteInput:
+      type: object
+      properties:
+        titre:
+          type: string
+        description:
+          type: string
+        statut:
+          type: string
+          enum: [ouverte, en_cours, resolue]
+      required:
+        - titre
+        - description
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+        email:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - username
+        - email
