@@ -48,14 +48,15 @@ Tu pourras y visualiser et tester les différentes routes de ton API.
 
 🗂️ Structure du projet
 📦 alertes-citoyennes-api
-├── index.js          # Point d’entrée principal du serveur Express
-├── swagger.js        # Configuration Swagger (OpenAPI)
-├── contracts/        # Dossier contenant les contrats
-│   └── swagger.yaml  # yaml permettant de définir le contrat d'interface
-├── routes/           # Dossier contenant les routes Express
-│   └── alerts.js     # Exemple de route : gestion des alertes citoyennes
-├── package.json      # Informations et dépendances du projet
-└── README.md         # Documentation du projet
+
+├── index.js          # Point d’entrée principal du serveur Express <br>
+├── swagger.js        # Configuration Swagger (OpenAPI) <br>
+├── contracts/        # Dossier contenant les contrats <br>
+│   └── swagger.yaml  # yaml permettant de définir le contrat d'interface <br>
+├── routes/           # Dossier contenant les routes Express <br>
+│   └── alerts.js     # Exemple de route : gestion des alertes citoyennes <br>
+├── package.json      # Informations et dépendances du projet <br>
+└── README.md         # Documentation du projet <br>
 
 🧪 Scripts disponibles
 Commande	Description
