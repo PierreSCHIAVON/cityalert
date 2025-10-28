@@ -11,27 +11,29 @@ Avant de commencer, assure-toi d’avoir installé :
 Node.js
  (version 16 ou supérieure)
 
-npm
- ou yarn
+`npm`
+ ou `yarn`
 
 ⚙️ Installation du projet
+
 1️⃣ Cloner le dépôt
-git clone https://github.com/ton-utilisateur/alertes-citoyennes-api.git
-cd alertes-citoyennes-api
+
+`git clone https://github.com/ton-utilisateur/alertes-citoyennes-api.git
+cd alertes-citoyennes-api`
 
 2️⃣ Installer les dépendances
-npm install
+`npm install`
 
 🚀 Démarrer le serveur
 
 Pour lancer le projet en mode normal :
 
-npm start
+`npm start`
 
 
 Si tu veux le lancer avec nodemon (pour rechargement automatique pendant le développement) :
 
-npm run dev
+`npm run dev`
 
 
 Le serveur sera disponible sur :
