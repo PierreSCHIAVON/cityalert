@@ -2,7 +2,7 @@ const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 
 // Chargement du fichier YAML
-const swaggerDocument = YAML.load('./swagger.yaml');
+const swaggerDocument = YAML.load('./contracts/swagger.yaml');
 
 function setupSwagger(app) {
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
