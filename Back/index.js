@@ -1,7 +1,7 @@
 const express = require('express');
 const setupSwagger = require('./swagger');
 const alertsRouter = require('./routes/alerts');
-const mediaRouter = require('./routes/mediaroutes');
+//const mediaRouter = require('./api/routes/media');
 
 const app = express();
 const port = 3000;
@@ -14,7 +14,7 @@ setupSwagger(app);
 
 // Initialisation des routes
 app.use('/api/alerts', alertsRouter);
-app.use('/api/media', mediaRouter);
+//app.use('/api/media', mediaRouter);
 
 // Démarrage du serveur
 app.listen(port, () => {
