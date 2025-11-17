@@ -1,4 +1,3 @@
-// media_controller.js
 import { supabase } from './supabaseClient.js'
 import multer from 'multer'
 import { randomUUID } from 'crypto'
