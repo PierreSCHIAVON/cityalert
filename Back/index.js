@@ -3,6 +3,7 @@ const setupSwagger = require('./swagger');
 const alertsRouter = require('./api/alerts/alerts_routes');
 //const mediaRouter = require('./api/routes/media');
 const categoriesRouter = require('./api/categories/categoriesroutes');
+const mediaRouter = require('./api/media/media_routes');
 const alertsRouter = require('./api/alerts/alerts_routes');
 const mediaRouter = require('./api/media/media_routes');
 
