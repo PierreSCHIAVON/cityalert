@@ -1,40 +1,72 @@
-import express from 'express'
-import { supabase } from './supabaseClient.js'
+const prisma = require('../../lib/prisma');
 
-const router = express.Router()
+exports.getMedia = async (req, res) => {
+    try {
+        const media = await prisma.media.findMany();
+        res.json(media);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des médias :', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
 
-router.get('/', async (req, res) => {
-    const { data, error } = await supabase.from('media').select('*')
-    if (error) return res.status(400).json({ error: error.message })
-    res.json(data)
-})
+exports.getMediaById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        const media = await prisma.media.findUnique({
+            where: { id: parseInt(id, 10) },
+        });
 
-router.get('/:id', async (req, res) => {
-    const { id } = req.params
-    const { data, error } = await supabase.from('media').select('*').eq('id', id).single()
-    if (error) return res.status(404).json({ error: error.message })
-    res.json(data)
-})
+        if (!media) {
+            return res.status(404).json({ error: 'Média non trouvé' });
+        }
 
-router.post('/', async (req, res) => {
-    const { title, url, type } = req.body
-    const { data, error } = await supabase.from('media').insert([{ title, url, type }])
-    if (error) return res.status(400).json({ error: error.message })
-    res.status(201).json(data)
-})
+        res.json(media);
+    } catch (error) {
+        console.error('Erreur lors de la récupération du média :', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
 
-router.put('/:id', async (req, res) => {
-    const { id } = req.params
-    const updates = req.body
-    const { data, error } = await supabase.from('media').update(updates).eq('id', id)
-    if (error) return res.status(400).json({ error: error.message })
-    res.json(data)
-})
+exports.createMedia = async (req, res) => {
+    const { title, url, type } = req.body;
+    try {
+        const newMedia = await prisma.media.create({
+            data: { title, url, type },
+        });
+        res.status(201).json(newMedia);
+    } catch (error) {
+        console.error('Erreur lors de la création du média :', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
 
-router.delete('/:id', async (req, res) => {
-    const { id } = req.params
-    const { data, error } = await supabase.from('media').delete().eq('id', id)
-    if (error) return res.status(400).json({ error: error.message })
-    res.json({ message: 'Media supprimé', data })
-})
-export default router
+exports.updateMedia = async (req, res) => {
+    const { id } = req.params;
+    const { title, url, type } = req.body;
+
+    try {
+        const updatedMedia = await prisma.media.update({
+            where: { id: parseInt(id, 10) },
+            data: { title, url, type },
+        });
+
+        res.json(updatedMedia);
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour du média :', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
+
+exports.deleteMedia = async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.media.delete({
+            where: { id: parseInt(id, 10) },
+        });
+        res.status(204).send();
+    } catch (error) {
+        console.error('Erreur lors de la suppression du média :', error);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+};
