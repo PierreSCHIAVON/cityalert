@@ -424,7 +424,7 @@ components:
     #######################
     # Médias
     #######################
-    Medias:
+    Media:
       type: object
       properties:
         id:
@@ -441,7 +441,7 @@ components:
         - url
         - type
 
-    MediasInput:
+    MediaInput:
       type: object
       properties:
         fichier:
