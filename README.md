@@ -24,6 +24,8 @@ cd alertes-citoyennes-api`
 ### 2️⃣ Installer les dépendances
 `npm install`
 
+`npx prisma generate`
+
 ### 🚀 Démarrer le serveur
 
 Pour lancer le projet en mode normal :
