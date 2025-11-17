@@ -6,7 +6,7 @@ const {
     createMedias,
     updateMedias,
     deleteMedias
-} = require("./mediacontroller");
+} = require("./mediascontroller");
 
 router.get("/", getMedias);
 router.get("/:id", getMediasById);

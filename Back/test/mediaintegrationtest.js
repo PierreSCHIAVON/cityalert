@@ -1,6 +1,6 @@
 import request from 'supertest';
 import express from 'express';
-import mediaRouter from '../mediaroutes.js';
+import mediaRouter from '../mediasroutes.js';
 import { supabase } from '../supabaseClient.js';
 
 const app = express();

@@ -2,7 +2,7 @@ const express = require('express');
 const setupSwagger = require('./swagger');
 const alertsRouter = require('./api/alerts/alerts_routes');
 const categoriesRouter = require('./api/categories/categoriesroutes');
-const mediaRouter = require('./api/medias/mediaroutes');
+const mediaRouter = require('./api/medias/mediasroutes');
 const app = express();
 const port = 3000;
 
