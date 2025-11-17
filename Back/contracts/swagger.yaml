@@ -211,7 +211,7 @@ paths:
   ############################
   # MEDIAS
   ############################
-  /api/media:
+  /api/medias:
     get:
       tags: [Médias]
       summary: Récupère tous les médias
@@ -241,7 +241,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Media'
 
-  /api/media/{id}:
+  /api/medias/{id}:
     get:
       tags: [Médias]
       summary: Récupère un média par ID
@@ -422,9 +422,9 @@ components:
         - nom
 
     #######################
-    # Média
+    # Médias
     #######################
-    Media:
+    Medias:
       type: object
       properties:
         id:
@@ -441,7 +441,7 @@ components:
         - url
         - type
 
-    MediaInput:
+    MediasInput:
       type: object
       properties:
         fichier:
