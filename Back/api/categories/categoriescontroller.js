@@ -10,6 +10,22 @@ exports.getCategories = async (req, res) => {
   }
 };
 
+exports.getCategory = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const category = await prisma.category.findUnique({
+      where: { id_category: parseInt(id, 10) },
+    });
+    if (!category) {
+      return res.status(404).json({ error: 'Catégorie non trouvée' });
+    }
+    res.json(category);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des catégories:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
 exports.createCategory = async (req, res) => {
   const { name, description } = req.body;
   try {
