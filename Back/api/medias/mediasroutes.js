@@ -2,16 +2,16 @@ const express = require("express");
 const router = express.Router();
 const {
     getMedias,
-    getMediasById,
-    createMedias,
-    updateMedias,
-    deleteMedias
+    getMediaById,
+    createMedia,
+    updateMedia,
+    deleteMedia
 } = require("./mediascontroller");
 
 router.get("/", getMedias);
-router.get("/:id", getMediasById);
-router.post("/", createMedias);
-router.put("/:id", updateMedias);
-router.delete("/:id", deleteMedias);
+router.get("/:id", getMediaById);
+router.post("/", createMedia);
+router.put("/:id", updateMedia);
+router.delete("/:id", deleteMedia);
 
 module.exports = router;

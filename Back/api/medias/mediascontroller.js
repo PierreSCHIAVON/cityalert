@@ -10,7 +10,7 @@ exports.getMedias = async (req, res) => {
     }
 };
 
-exports.getMediasById = async (req, res) => {
+exports.getMediaById = async (req, res) => {
     const { id } = req.params;
     try {
         const media = await prisma.media.findUnique({
@@ -28,7 +28,7 @@ exports.getMediasById = async (req, res) => {
     }
 };
 
-exports.createMedias = async (req, res) => {
+exports.createMedia = async (req, res) => {
     const { title, url, type } = req.body;
     try {
         const newMedia = await prisma.media.create({
@@ -41,7 +41,7 @@ exports.createMedias = async (req, res) => {
     }
 };
 
-exports.updateMedias = async (req, res) => {
+exports.updateMedia = async (req, res) => {
     const { id } = req.params;
     const { title, url, type } = req.body;
 
@@ -58,7 +58,7 @@ exports.updateMedias = async (req, res) => {
     }
 };
 
-exports.deleteMedias = async (req, res) => {
+exports.deleteMedia = async (req, res) => {
     const { id } = req.params;
     try {
         await prisma.media.delete({
