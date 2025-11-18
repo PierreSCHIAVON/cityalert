@@ -1,72 +1,127 @@
 const prisma = require('../../lib/prisma');
+const { PrismaClientKnownRequestError } = require('@prisma/client/runtime/library');
 
-exports.getMedias = async (req, res) => {
+// Fonction pour gérer les erreurs et renvoyer 500, 404, ou 400
+const handleError = (res, error, defaultMessage) => {
+    // Cas spécifique pour les erreurs de non-trouvé de Prisma (P2025)
+    if (error instanceof PrismaClientKnownRequestError && error.code === 'P2025') {
+        return res.status(404).json({ error: 'Média non trouvé' });
+    }
+    // 🚨 CORRECTION IMPORTANTE: Ajout de 'return' pour le cas 500 par défaut
+    return res.status(500).json({ error: defaultMessage || 'Erreur serveur' });
+};
+
+// --- GET ALL MEDIAS ---
+const getMedias = async (req, res) => {
     try {
         const medias = await prisma.media.findMany();
-        res.json(medias);
+        res.status(200).json(medias);
     } catch (error) {
-        console.error('Erreur lors de la récupération des médias :', error);
-        res.status(500).json({ error: 'Erreur serveur' });
+        // Le test 500 fonctionne ici car handleError est dans le catch
+        handleError(res, error, 'Erreur lors de la récupération des médias');
     }
 };
 
-exports.getMediaById = async (req, res) => {
-    const { id } = req.params;
+// --- GET MEDIA BY ID ---
+const getMediaById = async (req, res) => {
+    const id_media = parseInt(req.params.id_media);
+
+    // 🚨 CORRECTION : Validation et retour explicite
+    if (isNaN(id_media) || id_media <= 0) {
+        return res.status(400).json({ error: "ID de média manquant ou invalide." });
+    }
+
     try {
         const media = await prisma.media.findUnique({
-            where: { id: parseInt(id, 10) },
+            where: { id: id_media },
         });
 
         if (!media) {
             return res.status(404).json({ error: 'Média non trouvé' });
         }
 
-        res.json(media);
+        return res.status(200).json(media);
     } catch (error) {
-        console.error('Erreur lors de la récupération du média :', error);
-        res.status(500).json({ error: 'Erreur serveur' });
+        return handleError(res, error, 'Erreur lors de la récupération du média');
     }
 };
 
-exports.createMedia = async (req, res) => {
-    const { title, url, type } = req.body;
+// --- CREATE MEDIA ---
+const createMedia = async (req, res) => {
+    const { file_url, file_type, id_alert, user_id } = req.body;
+
+    // 🚨 CORRECTION : Validation des champs obligatoires et retour explicite
+    if (!file_url || !file_type || !id_alert || !user_id) {
+        return res.status(400).json({ error: 'Champs obligatoires (file_url, file_type, id_alert, user_id) manquants.' });
+    }
+
     try {
         const newMedia = await prisma.media.create({
-            data: { title, url, type },
+            data: {
+                file_url,
+                file_type,
+                id_alert: parseInt(id_alert),
+                user_id: parseInt(user_id),
+            },
         });
-        res.status(201).json(newMedia);
+        return res.status(201).json(newMedia);
     } catch (error) {
-        console.error('Erreur lors de la création du média :', error);
-        res.status(500).json({ error: 'Erreur serveur' });
+        return handleError(res, error, 'Erreur lors de la création du média');
     }
 };
 
-exports.updateMedia = async (req, res) => {
-    const { id } = req.params;
-    const { title, url, type } = req.body;
+// --- UPDATE MEDIA ---
+const updateMedia = async (req, res) => {
+    const id_media = parseInt(req.params.id_media);
+    const updateData = req.body;
+
+    // 🚨 CORRECTION : Validation de l'ID et retour explicite
+    if (isNaN(id_media) || id_media <= 0) {
+        return res.status(400).json({ error: "ID de média manquant ou invalide." });
+    }
+
+    // Vérification qu'au moins un champ est présent pour la mise à jour (optionnel mais bonne pratique)
+    if (Object.keys(updateData).length === 0) {
+        return res.status(400).json({ error: "Aucune donnée de mise à jour fournie." });
+    }
 
     try {
         const updatedMedia = await prisma.media.update({
-            where: { id: parseInt(id, 10) },
-            data: { title, url, type },
+            where: { id: id_media },
+            data: updateData,
         });
-
-        res.json(updatedMedia);
+        return res.status(200).json(updatedMedia);
     } catch (error) {
-        console.error('Erreur lors de la mise à jour du média :', error);
-        res.status(500).json({ error: 'Erreur serveur' });
+        // handleError gère l'erreur P2025 (404)
+        return handleError(res, error, 'Erreur lors de la mise à jour du média');
     }
 };
 
-exports.deleteMedia = async (req, res) => {
-    const { id } = req.params;
+// --- DELETE MEDIA ---
+const deleteMedia = async (req, res) => {
+    const id_media = parseInt(req.params.id_media);
+
+    // 🚨 CORRECTION : Validation de l'ID et retour explicite
+    if (isNaN(id_media) || id_media <= 0) {
+        return res.status(400).json({ error: "ID de média manquant ou invalide." });
+    }
+
     try {
         await prisma.media.delete({
-            where: { id: parseInt(id, 10) },
+            where: { id: id_media },
         });
-        res.status(204).send();
+        // Pour les requêtes DELETE réussies, on utilise 204 No Content
+        return res.status(204).send();
     } catch (error) {
-        console.error('Erreur lors de la suppression du média :', error);
-        res.status(500).json({ error: 'Erreur serveur' });
+        // handleError gère l'erreur P2025 (404)
+        return handleError(res, error, 'Erreur lors de la suppression du média');
     }
+};
+
+module.exports = {
+    getMedias,
+    getMediaById,
+    createMedia,
+    updateMedia,
+    deleteMedia
 };
