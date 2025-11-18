@@ -3,7 +3,7 @@ const setupSwagger = require("./swagger");
 const alertsRouter = require("./api/alerts/alerts_routes");
 const mediaRouter = require("./api/medias/mediasroutes");
 const categoriesRouter = require("./api/categories/categoriesroutes");
-const participationsRouter = require("./api/participations/participationroutes");
+const participationsRouter = require("./api/participations/participationsroutes");
 const app = express();
 const port = 3000;
 
