@@ -1,8 +1,9 @@
-const express = require('express');
-const setupSwagger = require('./swagger');
-const alertsRouter = require('./api/alerts/alerts_routes');
-const categoriesRouter = require('./api/categories/categoriesroutes');
-const mediaRouter = require('./api/medias/mediasroutes');
+const express = require("express");
+const setupSwagger = require("./swagger");
+const alertsRouter = require("./api/alerts/alerts_routes");
+const mediaRouter = require("./api/medias/mediasroutes");
+const categoriesRouter = require("./api/categories/categoriesroutes");
+const participationsRouter = require("./api/participations/participationroutes");
 const app = express();
 const port = 3000;
 
@@ -13,12 +14,15 @@ app.use(express.json());
 setupSwagger(app);
 
 // Initialisation des routes
-app.use('/api/alerts', alertsRouter);
-app.use('/api/media', mediaRouter);
-app.use('/api/categories', categoriesRouter);
+app.use("/api/alerts", alertsRouter);
+app.use("/api/medias", mediaRouter);
+app.use("/api/categories", categoriesRouter);
+app.use("/api/participations", participationsRouter);
 
 // Démarrage du serveur
 app.listen(port, () => {
-    console.log(`🚀 Serveur Express lancé sur http://localhost:${port}`);
-    console.log(`📘 Documentation Swagger disponible sur http://localhost:${port}/api-docs`);
+  console.log(`🚀 Serveur Express lancé sur http://localhost:${port}`);
+  console.log(
+    `📘 Documentation Swagger disponible sur http://localhost:${port}/api-docs`
+  );
 });
