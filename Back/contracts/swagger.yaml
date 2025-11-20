@@ -228,12 +228,12 @@ paths:
         '404':
           description: Catégorie non trouvée
 
-  ############################
-  # MEDIAS
-  ############################
+    ############################
+    # MEDIAS
+    ############################
   /api/medias:
     get:
-      tags: [Médias]
+      tags: [ Médias ]
       summary: Récupère tous les médias
       responses:
         '200':
@@ -245,13 +245,13 @@ paths:
                 items:
                   $ref: '#/components/schemas/Media'
     post:
-      tags: [Médias]
-      summary: Ajoute un média
-      description: Le média est associé à une alerte via id_alert et user_id.
+      tags: [ Médias ]
+      summary: Ajoute un média via une URL pré-uploadée
+      description: Le client doit d'abord uploader le fichier sur un service externe puis fournir l'URL résultante.
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json: # CHANGEMENT: Le corps est JSON
             schema:
               $ref: '#/components/schemas/MediaInput'
       responses:
@@ -528,13 +528,14 @@ components:
     MediaInput:
       type: object
       properties:
-        file: # Renommé pour correspondre à 'multipart/form-data'
+        file_url:
           type: string
-          format: binary
-          description: Le fichier média à uploader
+          format: url
+          description: URL publique du fichier média
         file_type:
           type: string
-          description: Type du média
+          description:
+            Type du média (ex: image/jpeg)
         id_alert:
           type: integer
           description: Identifiant de l'alerte à laquelle le média est associé
@@ -542,7 +543,8 @@ components:
           type: integer
           description: Identifiant de l'utilisateur créateur de l'alerte (clé composite)
       required:
-        - file
+        - file_url
+        - file_type
         - id_alert
         - user_id
 
