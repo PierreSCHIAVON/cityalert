@@ -48,11 +48,14 @@ const getMediaById = async (req, res) => {
 
 // --- CREATE MEDIA ---
 const createMedia = async (req, res) => {
-    const { file_url, file_type, id_alert, user_id } = req.body;
+    const body = req.body || {};
 
-    // 🚨 CORRECTION : Validation des champs obligatoires et retour explicite
+    const { file_url, file_type, id_alert, user_id } = body;
+
     if (!file_url || !file_type || !id_alert || !user_id) {
-        return res.status(400).json({ error: 'Champs obligatoires (file_url, file_type, id_alert, user_id) manquants.' });
+        return res.status(400).json({
+            error: 'Champs obligatoires (file_url, file_type, id_alert, user_id) manquants.'
+        });
     }
 
     try {

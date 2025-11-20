@@ -1,11 +1,14 @@
 const express = require("express");
 const setupSwagger = require("./swagger");
-const alertsRouter = require("./api/alerts/alerts_routes");
+const alertsRouter = require("./api/alerts/alertsroutes");
 const mediaRouter = require("./api/medias/mediasroutes");
 const categoriesRouter = require("./api/categories/categoriesroutes");
 const participationsRouter = require("./api/participations/participationsroutes");
 const app = express();
 const port = 3000;
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Middleware pour parser le JSON
 app.use(express.json());

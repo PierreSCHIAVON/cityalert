@@ -29,6 +29,7 @@ paths:
     get:
       tags: [Alertes]
       summary: Récupère la liste des alertes citoyennes
+      description: Peut nécessiter des paramètres de requête (pagination, filtres) non spécifiés ici.
       responses:
         '200':
           description: Liste récupérée avec succès
@@ -43,6 +44,7 @@ paths:
     post:
       tags: [Alertes]
       summary: Crée une nouvelle alerte citoyenne
+      description: Nécessite le 'user_id' du créateur dans le corps de la requête.
       requestBody:
         required: true
         content:
@@ -59,14 +61,21 @@ paths:
         '400':
           description: Données invalides
 
-  /api/alerts/{id}:
+  /api/alerts/{id_alert}/{user_id}:
     get:
       tags: [Alertes]
-      summary: Récupère une alerte par son identifiant
+      summary: Récupère une alerte par sa clé composite
       parameters:
-        - name: id
+        - name: id_alert
           in: path
           required: true
+          description: ID de l'alerte
+          schema:
+            type: integer
+        - name: user_id
+          in: path
+          required: true
+          description: ID de l'utilisateur qui a créé l'alerte
           schema:
             type: integer
       responses:
@@ -82,7 +91,12 @@ paths:
       tags: [Alertes]
       summary: Met à jour une alerte existante
       parameters:
-        - name: id
+        - name: id_alert
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user_id
           in: path
           required: true
           schema:
@@ -106,7 +120,12 @@ paths:
       tags: [Alertes]
       summary: Supprime une alerte
       parameters:
-        - name: id
+        - name: id_alert
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: user_id
           in: path
           required: true
           schema:
@@ -150,14 +169,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/Categorie'
 
-  /api/categories/{id}:
+  /api/categories/{id_category}:
     get:
       tags: [Catégories]
       summary: Récupère une catégorie par ID
       parameters:
-        - name: id
+        - name: id_category
           in: path
           required: true
+          description: ID de la catégorie
           schema:
             type: integer
       responses:
@@ -173,7 +193,7 @@ paths:
       tags: [Catégories]
       summary: Met à jour une catégorie
       parameters:
-        - name: id
+        - name: id_category
           in: path
           required: true
           schema:
@@ -197,7 +217,7 @@ paths:
       tags: [Catégories]
       summary: Supprime une catégorie
       parameters:
-        - name: id
+        - name: id_category
           in: path
           required: true
           schema:
@@ -227,6 +247,7 @@ paths:
     post:
       tags: [Médias]
       summary: Ajoute un média
+      description: Le média est associé à une alerte via id_alert et user_id.
       requestBody:
         required: true
         content:
@@ -241,12 +262,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Media'
 
-  /api/medias/{id}:
+  /api/medias/{id_media}:
     get:
       tags: [Médias]
       summary: Récupère un média par ID
       parameters:
-        - name: id
+        - name: id_media
           in: path
           required: true
           schema:
@@ -264,7 +285,7 @@ paths:
       tags: [Médias]
       summary: Supprime un média
       parameters:
-        - name: id
+        - name: id_media
           in: path
           required: true
           schema:
@@ -294,6 +315,7 @@ paths:
     post:
       tags: [Participations]
       summary: Crée une participation à une alerte
+      description: Nécessite les IDs de l'utilisateur participant et de l'alerte ciblée (id_alert et alert_user_id).
       requestBody:
         required: true
         content:
@@ -308,12 +330,12 @@ paths:
               schema:
                 $ref: '#/components/schemas/Participation'
 
-  /api/participations/{id}:
+  /api/participations/{id_participation}:
     get:
       tags: [Participations]
       summary: Récupère une participation par ID
       parameters:
-        - name: id
+        - name: id_participation
           in: path
           required: true
           schema:
@@ -331,7 +353,7 @@ paths:
       tags: [Participations]
       summary: Supprime une participation
       parameters:
-        - name: id
+        - name: id_participation
           in: path
           required: true
           schema:
@@ -350,50 +372,101 @@ components:
     Alerte:
       type: object
       properties:
-        id:
+        id_alert:
           type: integer
-        titre:
+          description: Identifiant unique de l'alerte
+        user_id:
+          type: integer
+          description: Identifiant de l'utilisateur qui a créé l'alerte (clé composite)
+        title:
           type: string
+          description: Titre de l'alerte
         description:
           type: string
-        dateCreation:
+          description: Description détaillée de l'alerte
+        status:
+          type: string
+          description: Statut actuel de l'alerte
+          enum: [ouverte, en_cours, resolue]
+        intensity:
+          type: string
+          description: Niveau d'intensité ou d'urgence de l'alerte
+        created_at:
           type: string
           format: date-time
-        statut:
-          type: string
-          enum: [ouverte, en_cours, resolue]
-        categorie:
+          description: Date et heure de création de l'alerte
+        location_lat:
+          type: number
+          format: double
+          description: Latitude de la localisation de l'alerte
+        location_lon:
+          type: number
+          format: double
+          description: Longitude de la localisation de l'alerte
+        id_category:
+          type: integer
+          description: Identifiant de la catégorie associée
+        category:
           $ref: '#/components/schemas/Categorie'
-        medias:
+        media:
           type: array
           items:
             $ref: '#/components/schemas/Media'
-        participations:
+        participation:
           type: array
           items:
             $ref: '#/components/schemas/Participation'
       required:
-        - id
-        - titre
+        - id_alert
+        - user_id
+        - title
         - description
-        - dateCreation
-        - statut
+        - status
+        - intensity
+        - created_at
+        - location_lat
+        - location_lon
+        - id_category
 
     AlerteInput:
       type: object
       properties:
-        titre:
+        user_id:
+          type: integer
+          description: Identifiant de l'utilisateur créateur (clé composite nécessaire pour POST/PUT)
+        title:
           type: string
+          description: Titre de la nouvelle alerte
         description:
           type: string
-        statut:
+          description: Description détaillée
+        status:
           type: string
+          description: Statut initial de l'alerte
           enum: [ouverte, en_cours, resolue]
-        categorieId:
+          default: ouverte
+        intensity:
+          type: string
+          description: Niveau d'intensité
+        location_lat:
+          type: number
+          format: double
+          description: Latitude de la localisation
+        location_lon:
+          type: number
+          format: double
+          description: Longitude de la localisation
+        id_category:
           type: integer
+          description: Identifiant de la catégorie
       required:
-        - titre
+        - user_id
+        - title
         - description
+        - intensity
+        - location_lat
+        - location_lon
+        - id_category
 
     #######################
     # Catégorie
@@ -401,25 +474,24 @@ components:
     Categorie:
       type: object
       properties:
-        id:
+        id_category:
           type: integer
-        nom:
+          description: Identifiant unique de la catégorie
+        title:
           type: string
-        description:
-          type: string
+          description: Nom ou titre de la catégorie
       required:
-        - id
-        - nom
+        - id_category
+        - title
 
     CategorieInput:
       type: object
       properties:
-        nom:
+        title:
           type: string
-        description:
-          type: string
+          description: Nom ou titre de la catégorie
       required:
-        - nom
+        - title
 
     #######################
     # Médias
@@ -427,35 +499,52 @@ components:
     Media:
       type: object
       properties:
-        id:
+        id_media:
           type: integer
-        url:
+          description: Identifiant unique du média
+        file_type:
           type: string
-        type:
+          description: Type de fichier
+        file_url:
           type: string
-          enum: [image, video, audio]
-        alerteId:
+          format: url
+          description: URL du fichier média
+        uploaded_at:
+          type: string
+          format: date-time
+          description: Date et heure de l'upload
+        id_alert:
           type: integer
+          description: Identifiant de l'alerte associée (clé composite)
+        user_id:
+          type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte associée (clé composite)
       required:
-        - id
-        - url
-        - type
+        - id_media
+        - file_url
+        - id_alert
+        - user_id
 
     MediaInput:
       type: object
       properties:
-        fichier:
+        file: # Renommé pour correspondre à 'multipart/form-data'
           type: string
           format: binary
-        type:
+          description: Le fichier média à uploader
+        file_type:
           type: string
-          enum: [image, video, audio]
-        alerteId:
+          description: Type du média
+        id_alert:
           type: integer
+          description: Identifiant de l'alerte à laquelle le média est associé
+        user_id:
+          type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte (clé composite)
       required:
-        - fichier
-        - type
-        - alerteId
+        - file
+        - id_alert
+        - user_id
 
     #######################
     # Participation
@@ -463,32 +552,48 @@ components:
     Participation:
       type: object
       properties:
-        id:
+        id_participation:
           type: integer
-        nom:
+          description: Identifiant unique de la participation
+        user_id:
+          type: integer
+          description: Identifiant de l'utilisateur qui participe
+        response:
           type: string
-        message:
-          type: string
-        dateParticipation:
+          description: Message de la participation (réponse)
+        date_response:
           type: string
           format: date-time
-        alerteId:
+          description: Date et heure de la participation
+        id_alert:
           type: integer
+          description: Identifiant de l'alerte associée
+        alert_user_id:
+          type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte associée (clé composite)
       required:
-        - id
-        - nom
-        - dateParticipation
-        - alerteId
+        - id_participation
+        - user_id
+        - date_response
+        - id_alert
+        - alert_user_id
 
     ParticipationInput:
       type: object
       properties:
-        nom:
-          type: string
-        message:
-          type: string
-        alerteId:
+        user_id:
           type: integer
+          description: Identifiant de l'utilisateur qui participe (clé composite nécessaire pour POST/PUT)
+        response:
+          type: string
+          description: Message de la participation
+        id_alert:
+          type: integer
+          description: Identifiant de l'alerte concernée
+        alert_user_id:
+          type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte concernée
       required:
-        - nom
-        - alerteId
+        - user_id
+        - id_alert
+        - alert_user_id
