@@ -1,10 +1,10 @@
 openapi: 3.0.0
 info:
   title: API Alertes Citoyennes
-  version: 1.0.1
+  version: 1.0.2
   description: >
     API permettant de remonter et gérer des alertes citoyennes, leurs catégories,
-    leurs médias associés, et les participations des citoyens.
+    leurs médias associés, les participations des citoyens, et la gestion des clés API.
     L'authentification est gérée par un autre service — aucune authentification JWT n'est requise ici.
 
 servers:
@@ -20,6 +20,8 @@ tags:
     description: Gestion des médias associés aux alertes
   - name: Participations
     description: Participations des citoyens aux alertes
+  - name: API Keys
+    description: Gestion des clés API pour les utilisateurs
 
 paths:
   ############################
@@ -228,12 +230,12 @@ paths:
         '404':
           description: Catégorie non trouvée
 
-    ############################
-    # MEDIAS
-    ############################
+  ############################
+  # MEDIAS
+  ############################
   /api/medias:
     get:
-      tags: [ Médias ]
+      tags: [Médias]
       summary: Récupère tous les médias
       responses:
         '200':
@@ -245,13 +247,13 @@ paths:
                 items:
                   $ref: '#/components/schemas/Media'
     post:
-      tags: [ Médias ]
+      tags: [Médias]
       summary: Ajoute un média via une URL pré-uploadée
       description: Le client doit d'abord uploader le fichier sur un service externe puis fournir l'URL résultante.
       requestBody:
         required: true
         content:
-          application/json: # CHANGEMENT: Le corps est JSON
+          application/json:
             schema:
               $ref: '#/components/schemas/MediaInput'
       responses:
@@ -363,6 +365,88 @@ paths:
           description: Participation supprimée
         '404':
           description: Participation non trouvée
+
+  ############################
+  # API KEYS
+  ############################
+  /api/api_keys:
+    post:
+      tags: [API Keys]
+      summary: Crée une nouvelle clé API pour un utilisateur
+      description: >
+        Un utilisateur ne peut avoir qu'une seule clé API active.
+        La clé brute (raw_key) est retournée uniquement lors de la création et ne pourra plus être récupérée par la suite.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApiKeyInput'
+      responses:
+        '201':
+          description: Clé API créée avec succès
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiKeyCreated'
+        '400':
+          description: Données invalides (user_id manquant)
+        '409':
+          description: L'utilisateur possède déjà une clé API
+        '500':
+          description: Erreur interne du serveur
+
+  /api/api_keys/{user_id}:
+    get:
+      tags: [API Keys]
+      summary: Récupère la clé API d'un utilisateur
+      description: >
+        Retourne les informations de la clé API (sans la clé brute).
+        Retourne null si l'utilisateur n'a pas de clé.
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID de l'utilisateur
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Clé API trouvée ou null
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ApiKey'
+                  - type: object
+                    nullable: true
+        '500':
+          description: Erreur interne du serveur
+    delete:
+      tags: [API Keys]
+      summary: Supprime la clé API d'un utilisateur
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: ID de l'utilisateur
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Clé API supprimée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: API key deleted.
+        '404':
+          description: Aucune clé API trouvée pour cet utilisateur
+        '500':
+          description: Erreur interne du serveur
 
 components:
   schemas:
@@ -534,8 +618,7 @@ components:
           description: URL publique du fichier média
         file_type:
           type: string
-          description:
-            Type du média (ex: image/jpeg)
+          description: Type du média (ex: image/jpeg)
         id_alert:
           type: integer
           description: Identifiant de l'alerte à laquelle le média est associé
@@ -599,3 +682,92 @@ components:
         - user_id
         - id_alert
         - alert_user_id
+
+    #######################
+    # API Key
+    #######################
+    ApiKey:
+      type: object
+      properties:
+        id_api_key:
+          type: integer
+          description: Identifiant unique de la clé API
+        user_id:
+          type: integer
+          description: Identifiant de l'utilisateur propriétaire de la clé
+        name:
+          type: string
+          nullable: true
+          maxLength: 100
+          description: Nom optionnel pour identifier la clé
+        created_at:
+          type: string
+          format: date-time
+          description: Date et heure de création de la clé
+        last_used_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date et heure de dernière utilisation
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Date et heure d'expiration de la clé
+        is_active:
+          type: boolean
+          description: Indique si la clé est active
+      required:
+        - id_api_key
+        - user_id
+        - created_at
+        - is_active
+
+    ApiKeyInput:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          description: Identifiant de l'utilisateur pour lequel créer la clé API
+        name:
+          type: string
+          maxLength: 100
+          description: Nom optionnel pour identifier la clé
+      required:
+        - user_id
+
+    ApiKeyCreated:
+      type: object
+      properties:
+        message:
+          type: string
+          example: API Key created.
+        api_key:
+          type: object
+          properties:
+            raw_key:
+              type: string
+              description: >
+                Clé API brute (en clair). Cette valeur ne sera plus accessible après cette réponse.
+                Le client doit la sauvegarder de manière sécurisée.
+              example: "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6"
+            id_api_key:
+              type: integer
+              description: Identifiant unique de la clé API
+            user_id:
+              type: integer
+              description: Identifiant de l'utilisateur
+            name:
+              type: string
+              nullable: true
+              description: Nom de la clé
+            created_at:
+              type: string
+              format: date-time
+              description: Date de création
+            is_active:
+              type: boolean
+              description: Statut actif de la clé
+      required:
+        - message
+        - api_key

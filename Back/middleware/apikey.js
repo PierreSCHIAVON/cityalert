@@ -1,78 +1,57 @@
-const crypto = require('crypto');
+const prisma = require("../lib/prisma");
+const bcrypt = require("bcrypt");
 
-// Pour stocker le compteur en mémoire
-const rateLimitMap = new Map();
+const apiKeyAuth = async (req, res, next) => {
+  try {
+    const apiKey = req.headers["x-api-key"];
 
-// Hashage SHA-256
-function hashApiKey(apiKey) {
-    return crypto.createHash('sha256').update(apiKey).digest('hex');
-}
-
-// Comparaison sécurisée
-function safeCompare(a, b) {
-    const bufA = Buffer.from(a, 'utf-8');
-    const bufB = Buffer.from(b, 'utf-8');
-    if (bufA.length !== bufB.length) return false;
-    return crypto.timingSafeEqual(bufA, bufB);
-}
-
-async function verifyApiKey(req, res, next) {
-    const apiKey = req.headers['x-api-key'] ||
-        req.headers['authorization']?.replace('Bearer ', '');
-
-    if (!apiKey) return res.status(401).json({ error: 'Clé API manquante' });
-
-    const hashedKey = hashApiKey(apiKey);
-
-    // Récupérer la clé depuis la DB
-    const result = await db.query(
-        `SELECT * FROM api_keys 
-     WHERE key_hash = $1
-       AND is_active = true
-       AND (expires_at IS NULL OR expires_at > NOW())`,
-        [hashedKey]
-    );
-
-    const key = result.rows[0];
-    if (!key || !safeCompare(key.key_hash, hashedKey)) {
-        return res.status(401).json({ error: 'Clé API invalide ou expirée' });
+    if (!apiKey) {
+      return res.status(401).json({ error: "API Key missing." });
     }
 
-    // ---------------------------
-    // Rate limiting simple en mémoire
-    // ---------------------------
-    const limit = 100; // 100 requêtes par minute
-    const windowMs = 60_000;
-    const keyId = key.id;
-    const now = Date.now();
+    // Récupère la clé active
+    const apiKeyRecord = await prisma.api_key.findFirst({
+      where: { is_active: true },
+    });
 
-    let rateData = rateLimitMap.get(keyId) || { count: 0, startTime: now };
-
-    // Reset de la fenêtre si expirée
-    if (now - rateData.startTime > windowMs) {
-        rateData = { count: 0, startTime: now };
+    if (!apiKeyRecord) {
+      return res.status(401).json({ error: "Invalid API Key." });
     }
 
-    rateData.count++;
-    rateLimitMap.set(keyId, rateData);
+    // Vérification du hash
+    const match = await bcrypt.compare(apiKey, apiKeyRecord.key_hash);
 
-    if (rateData.count > limit) {
-        return res.status(429).json({ error: 'Trop de requêtes pour cette clé API' });
+    if (!match) {
+      return res.status(401).json({ error: "Invalid API Key." });
     }
 
-    // ---------------------------
-    // Mettre à jour last_used_at
-    // ---------------------------
-    await db.query(
-        'UPDATE api_keys SET last_used_at = NOW() WHERE id = $1',
-        [key.id]
-    );
+    // Vérifie l'expiration
+    if (apiKeyRecord.expires_at && new Date() > apiKeyRecord.expires_at) {
+      return res.status(401).json({ error: "API Key expired." });
+    }
 
-    req.user = key.user_id;
+    // Update last_used_at
+    await prisma.api_key.update({
+      where: {
+        id_api_key_user_id: {
+          id_api_key: apiKeyRecord.id_api_key,
+          user_id: apiKeyRecord.user_id,
+        },
+      },
+      data: { last_used_at: new Date() },
+    });
+
+    // Attache le user à la requête
+    req.apiUser = {
+      user_id: apiKeyRecord.user_id,
+      api_key_id: apiKeyRecord.id_api_key,
+    };
+
     next();
-}
+  } catch (error) {
+    console.error("API Key Auth Error:", error);
+    return res.status(500).json({ error: "API Key validation error." });
+  }
+};
 
-// Route protégée
-app.get('/api/data', verifyApiKey, (req, res) => {
-    res.json({ data: 'Voici vos données sécurisées !', user: req.user });
-});
+module.exports = apiKeyAuth;
