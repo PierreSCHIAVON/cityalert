@@ -4,6 +4,7 @@ const alertsRouter = require("./api/alerts/alertsroutes");
 const mediaRouter = require("./api/medias/mediasroutes");
 const categoriesRouter = require("./api/categories/categoriesroutes");
 const participationsRouter = require("./api/participations/participationsroutes");
+const appRouter = require("./api/app/approuter");
 const app = express();
 const port = 3000;
 
@@ -21,6 +22,7 @@ app.use("/api/alerts", alertsRouter);
 app.use("/api/medias", mediaRouter);
 app.use("/api/categories", categoriesRouter);
 app.use("/api/participations", participationsRouter);
+app.use("/api/app", appRouter);
 
 // Démarrage du serveur
 app.listen(port, () => {
