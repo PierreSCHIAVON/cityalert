@@ -24,6 +24,8 @@ cd alertes-citoyennes-api`
 ### 2️⃣ Installer les dépendances
 `npm install`
 
+`npx prisma generate`
+
 ### 🚀 Démarrer le serveur
 
 Pour lancer le projet en mode normal :
@@ -49,16 +51,26 @@ Tu pourras y visualiser et tester les différentes routes de ton API.
 ## 🗂️ Structure du projet
 ### 📦 alertes-citoyennes-api
 
-├── index.js          # Point d’entrée principal du serveur Express <br>
-├── swagger.js        # Configuration Swagger (OpenAPI) <br>
-├── contracts/        # Dossier contenant les contrats <br>
-│   └── swagger.yaml  # yaml permettant de définir le contrat d'interface <br>
-├── routes/           # Dossier contenant les routes Express <br>
-│   └── alerts.js     # Exemple de route : gestion des alertes citoyennes <br>
-├── package.json      # Informations et dépendances du projet <br>
-└── README.md         # Documentation du projet <br>
+├── index.js              # Point d’entrée principal du serveur Express <br>
+├── swagger.js            # Configuration Swagger (OpenAPI) <br>
+├── contracts/            # Dossier contenant les contrats <br>
+│   └── swagger.yaml      # yaml permettant de définir le contrat d'interface <br>
+├── api/                  # Dossier contenant les routes Express <br>
+│   └── alerts            # routes, controleur et test des alertes citoyennes <br>
+│   └── categorie         # routes, controleur et test des categories d'alertes<br>
+│   └── medias            # routes, controleur et test des média des alertes<br>
+│   └── participations    # routes, controleur et test des participations aux alertes<br>
+├── lib/prisma            # Lib prisma qui connecte à la BD avec les models
+├── middleware            # Gère la connexion APIkey
+├── prisma/schema.prisma  # Models prisma <br>
+├── package.json          # Informations et dépendances du projet <br>
+└── README.md             # Documentation du projet <br>
 
 ## 🧪 Scripts disponibles
 ### Commande	Description
 `npm start` Lance le serveur Express
 `npm run dev`	Lance le serveur avec nodemon (mode développement)
+
+## TEST
+pour lancer les tests, faire la commande 
+`npm test`
