@@ -28,6 +28,8 @@ model alert {
 model api_key {
   id_api_key   Int       @default(autoincrement())
   user_id      Int       @default(autoincrement())
+  id_api_key   Int       @default(autoincrement())
+  user_id      Int       @default(autoincrement())
   key_hash     String    @unique
   name         String?   @db.VarChar(100)
   created_at   DateTime? @db.Timestamp(6)
@@ -36,7 +38,7 @@ model api_key {
   is_active    Boolean?
   password     String
   refresh_token String?
- 
+
   @@id([user_id])
 }
 
