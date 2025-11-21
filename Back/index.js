@@ -6,6 +6,7 @@ const categoriesRouter = require("./api/categories/categoriesroutes");
 const participationsRouter = require("./api/participations/participationsroutes");
 const apiKeyRouter = require("./api/api_key/api_keyroutes");
 const apiKeyAuth = require("./middleware/apikey");
+const appRouter = require("./api/app/approuter");
 const app = express();
 const port = 3000;
 
@@ -24,6 +25,7 @@ app.use("/api/medias", apiKeyAuth, mediaRouter);
 app.use("/api/categories", apiKeyAuth, categoriesRouter);
 app.use("/api/participations", apiKeyAuth, participationsRouter);
 app.use("/api/api_keys", apiKeyRouter);
+app.use("/api/app", appRouter);
 
 // Démarrage du serveur
 app.listen(port, () => {

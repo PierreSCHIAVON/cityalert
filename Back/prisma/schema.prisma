@@ -36,7 +36,7 @@ model api_key {
   is_active    Boolean?
   password     String
   refresh_token String?
- 
+
   @@id([user_id])
 }
 
