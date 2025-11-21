@@ -9,10 +9,10 @@ const {
     deleteAlert,
 } = require("./alertscontroller");
 
-// Récupérer toutes les alertes
+// Récupérer toutes les alertes (avec pagination via ?page=&limit=)
 router.get("/", getAlerts);
 
-// Récupérer une alerte spécifique (clé composite)
+// Récupérer une alerte spécifique avec clé composite
 router.get("/:id_alert/:user_id", getAlertById);
 
 // Créer une alerte
