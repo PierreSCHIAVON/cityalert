@@ -1,0 +1,23 @@
+const cron = require("node-cron");
+require('dotenv').config();
+const prisma = require("../lib/prisma");
+const alertService = require("../api/alerts/alertService");
+
+cron.schedule("*/5 * * * *", async () => {
+  console.log(`Cron → Vérification des alertes... ${new Date().toLocaleString()}`);
+
+  try {
+    // On récupère seulement les alertes ouvertes
+    const alerts = await prisma.alert.findMany({
+      where: { status: "ouverte" },
+      include: { participation: true }
+    });
+
+    for (const alert of alerts) {
+      await alertService.autoCloseAlert(alert);
+    }
+
+  } catch (error) {
+    console.error("Erreur dans le cron :", error);
+  }
+});
