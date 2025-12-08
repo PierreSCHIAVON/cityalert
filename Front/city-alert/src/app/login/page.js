@@ -45,7 +45,7 @@ export default function Home() {
         
         credentials: 'include', // Important pour les cookies
         body: JSON.stringify({
-          email: signupEmail,
+          name: signupName,
           password: signupPassword,
         }),
       });
@@ -54,7 +54,7 @@ export default function Home() {
 
       if (response.ok) {
         setMessage('Compte créé avec succès !');
-        setSignupEmail('');
+        setSignupName('');
         setSignupPassword('');
         console.log("toto")
         router.push('/dashboard');
@@ -86,7 +86,7 @@ export default function Home() {
         },
         credentials: 'include', // Important pour les cookies
         body: JSON.stringify({
-          email: loginEmail,
+          name: loginName,
           password: loginPassword,
         }),
       });
@@ -100,7 +100,7 @@ export default function Home() {
         // Rediriger vers le dashboard ou la page principale
         router.push('/dashboard');
       } else {
-        setError(data.message || 'Email ou mot de passe incorrect');
+        setError(data.message || 'Nom ou mot de passe incorrect');
       }
     } catch (err) {
       setError('Erreur de connexion au serveur');
