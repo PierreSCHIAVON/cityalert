@@ -34,12 +34,15 @@ export default function Home() {
     setError('');
     setMessage('');
 
+    console.log("toto")
+
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/app/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
+        
         credentials: 'include', // Important pour les cookies
         body: JSON.stringify({
           email: signupEmail,
@@ -53,6 +56,7 @@ export default function Home() {
         setMessage('Compte créé avec succès !');
         setSignupEmail('');
         setSignupPassword('');
+        console.log("toto")
         router.push('/dashboard');
         setTimeout(() => {
           setIsRightPanelActive(false);
@@ -68,6 +72,7 @@ export default function Home() {
   };
 
   const handleLogin = async (e) => {
+    console.log("toto")
     e.preventDefault();
     setLoading(true);
     setError('');
