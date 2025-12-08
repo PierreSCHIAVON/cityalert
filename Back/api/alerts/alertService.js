@@ -1,5 +1,5 @@
-const e = require("express");
-const prisma = require("../../lib/prisma");
+const e = require('express');
+const prisma = require('../../lib/prisma');
 
 exports.autoCloseAlert = async (alert) => {
   // Vérifier temps
@@ -11,12 +11,8 @@ exports.autoCloseAlert = async (alert) => {
   }
 
   // Comptage participations
-  const yesCount = alert.participation.filter(
-    (p) => p.response === "oui"
-  ).length;
-  const noCount = alert.participation.filter(
-    (p) => p.response === "non"
-  ).length;
+  const yesCount = alert.participation.filter(p => p.response === "oui").length;
+  const noCount  = alert.participation.filter(p => p.response === "non").length;
 
   if (noCount > yesCount) {
     // On ferme l’alerte
@@ -24,10 +20,10 @@ exports.autoCloseAlert = async (alert) => {
       where: {
         id_alert_user_id: {
           id_alert: alert.id_alert,
-          user_id: alert.user_id,
-        },
+          user_id: alert.user_id
+        }
       },
-      data: { status: "fermée" },
+      data: { status: "fermée" }
     });
 
     return { closed: true, alert: closed };

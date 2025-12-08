@@ -152,6 +152,7 @@ paths:
   # ALERTES
   ############################
   /api/alerts:
+    /api/alerts:
     get:
       tags: [Alertes]
       summary: Récupère la liste des alertes citoyennes avec pagination

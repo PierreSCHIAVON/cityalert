@@ -18,7 +18,7 @@ exports.getAlerts = async (req, res) => {
     const alerts = await prisma.alert.findMany({
       skip,
       take: limit,
-      orderBy: { created_at: "desc" },
+      orderBy: { created_at: 'desc' },
       include: {
         category: true,
         media: true,
@@ -91,17 +91,9 @@ exports.createAlert = async (req, res) => {
   } = req.body;
 
   // Validation simple
-  if (
-    !user_id ||
-    !title ||
-    !description ||
-    !intensity ||
-    !location_lat ||
-    !location_lon ||
-    !id_category
-  ) {
+  if (!user_id || !title || !description || !intensity || !location_lat || !location_lon || !id_category) {
     return res.status(400).json({
-      error: "Données manquantes.",
+      error: 'Données manquantes.',
     });
   }
 
@@ -111,7 +103,7 @@ exports.createAlert = async (req, res) => {
         user_id: toInt(user_id),
         title,
         description,
-        status: status || "ouverte",
+        status: status || 'ouverte',
         intensity,
         location_lat: toFloat(location_lat),
         location_lon: toFloat(location_lon),
@@ -121,22 +113,22 @@ exports.createAlert = async (req, res) => {
 
     res.status(201).json(newAlert);
   } catch (error) {
-    console.error("Erreur lors de la création de l’alerte :", error);
+    console.error('Erreur lors de la création de l’alerte :', error);
 
-    if (error.code === "P2003") {
+    if (error.code === 'P2003') {
       return res.status(400).json({
-        error: "Catégorie ou user_id inexistant.",
+        error: 'Catégorie ou user_id inexistant.',
       });
     }
 
-    if (error.name === "PrismaClientValidationError") {
+    if (error.name === 'PrismaClientValidationError') {
       return res.status(400).json({
-        error: "Erreur de validation Prisma.",
+        error: 'Erreur de validation Prisma.',
         details: error.message,
       });
     }
 
-    res.status(500).json({ error: "Erreur serveur" });
+    res.status(500).json({ error: 'Erreur serveur' });
   }
 };
 
@@ -178,9 +170,9 @@ exports.updateAlert = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors de la mise à jour de l’alerte :", error);
 
-    if (error.code === "P2025") {
+    if (error.code === 'P2025') {
       return res.status(404).json({
-        error: "Alerte non trouvée pour cette clé composite.",
+        error: 'Alerte non trouvée pour cette clé composite.',
       });
     }
 
@@ -208,9 +200,9 @@ exports.deleteAlert = async (req, res) => {
   } catch (error) {
     console.error("Erreur lors de la suppression de l’alerte :", error);
 
-    if (error.code === "P2025") {
+    if (error.code === 'P2025') {
       return res.status(404).json({
-        error: "Alerte non trouvée pour cette clé composite.",
+        error: 'Alerte non trouvée pour cette clé composite.',
       });
     }
 

@@ -28,6 +28,9 @@ app.use("/api/participations", apiKeyAuth, participationsRouter);
 app.use("/api/api_keys", apiKeyRouter);
 app.use("/api/app", appRouter);
 
+// Initialisation du cron pour la fermeture automatique des alertes
+require("./cron/alertCron");
+
 // Démarrage du serveur
 app.listen(port, () => {
   console.log(`🚀 Serveur Express lancé sur http://localhost:${port}`);
