@@ -71,6 +71,7 @@ export default function Home() {
       const result = await login(loginName, loginPassword);
 
       if (result.success) {
+        console.log('Login successful');
         setMessage('Connexion réussie !');
         setTimeout(() => {
           router.push('/dashboard');

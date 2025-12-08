@@ -17,11 +17,12 @@ export const AuthProvider = ({ children }) => {
   const checkAuth = async () => {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/app/me`, {
-        credentials: 'include',
+        //credentials: 'include',
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log('User authenticated:', data.user);
         setUser(data.user);
       } else {
         setUser(null);
