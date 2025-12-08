@@ -40,7 +40,7 @@ export const AuthProvider = ({ children }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
+      //credentials: 'include',
       body: JSON.stringify({ name, password }),
     });
 
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }) => {
       headers: {
         'Content-Type': 'application/json',
       },
-      credentials: 'include',
+      //credentials: 'include',
       body: JSON.stringify({ name, password }),
     });
 
