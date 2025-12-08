@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata = {
   title: "City Alert",
   description: "Generate and manage your API keys with ease.",
+  icons: {
+    icon: '/cityalertfav.png',
+  },
 };
 
 export default function RootLayout({ children }) {
