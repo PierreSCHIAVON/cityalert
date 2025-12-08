@@ -1,16 +1,24 @@
-const prisma = require('../../lib/prisma');
+const prisma = require("../../lib/prisma");
 
-// Fonction utilitaire pour la conversion en entier
-const toInt = (value) => value !== undefined ? parseInt(value, 10) : undefined;
-// Fonction utilitaire pour la conversion en flottant
-const toFloat = (value) => value !== undefined ? parseFloat(value) : undefined;
+// Convertisseurs
+const toInt = (v) => (v !== undefined ? parseInt(v, 10) : undefined);
+const toFloat = (v) => (v !== undefined ? parseFloat(v) : undefined);
 
-// ---
-// GET all alerts
-// ---
+/* ========================================
+   GET /api/alerts  (avec pagination)
+======================================== */
 exports.getAlerts = async (req, res) => {
   try {
+    // pagination
+    const page = toInt(req.query.page) || 1;
+    const limit = toInt(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+
+    // data
     const alerts = await prisma.alert.findMany({
+      skip,
+      take: limit,
+      orderBy: { created_at: "desc" },
       include: {
         category: true,
         media: true,
@@ -18,23 +26,32 @@ exports.getAlerts = async (req, res) => {
       },
     });
 
-    res.json(alerts);
+    // total pour pagination
+    const total_items = await prisma.alert.count();
+    const total_pages = Math.ceil(total_items / limit);
+
+    res.json({
+      page,
+      limit,
+      total_items,
+      total_pages,
+      items: alerts,
+    });
   } catch (error) {
-    console.error('Erreur lors de la récupération des alertes:', error);
-    res.status(500).json({ error: 'Erreur serveur' });
+    console.error("Erreur lors de la récupération des alertes:", error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-// ---
-// GET one alert by id_alert + user_id
-// ---
+/* ========================================
+   GET /api/alerts/:id_alert/:user_id
+======================================== */
 exports.getAlertById = async (req, res) => {
   const { id_alert, user_id } = req.params;
 
   try {
     const alert = await prisma.alert.findUnique({
       where: {
-        // L'alias généré par Prisma pour la clé primaire composite
         id_alert_user_id: {
           id_alert: toInt(id_alert),
           user_id: toInt(user_id),
@@ -48,21 +65,20 @@ exports.getAlertById = async (req, res) => {
     });
 
     if (!alert) {
-      return res.status(404).json({ error: 'Alerte non trouvée' });
+      return res.status(404).json({ error: "Alerte non trouvée" });
     }
 
     res.json(alert);
   } catch (error) {
-    console.error('Erreur lors de la récupération de l’alerte :', error);
-    res.status(500).json({ error: 'Erreur serveur' });
+    console.error("Erreur lors de la récupération de l’alerte :", error);
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-// ---
-// CREATE alert
-// ---
+/* ========================================
+   POST /api/alerts
+======================================== */
 exports.createAlert = async (req, res) => {
-  // Déstructuration des valeurs brutes de req.body
   const {
     user_id,
     title,
@@ -74,19 +90,28 @@ exports.createAlert = async (req, res) => {
     id_category,
   } = req.body;
 
-  // Validation simple des champs requis
-  if (!user_id || !title || !description || !intensity || !location_lat || !location_lon || !id_category) {
-    return res.status(400).json({ error: 'Données manquantes. Assurez-vous que user_id, title, description, intensity, location_lat, location_lon et id_category sont fournis.' });
+  // Validation simple
+  if (
+    !user_id ||
+    !title ||
+    !description ||
+    !intensity ||
+    !location_lat ||
+    !location_lon ||
+    !id_category
+  ) {
+    return res.status(400).json({
+      error: "Données manquantes.",
+    });
   }
 
   try {
     const newAlert = await prisma.alert.create({
       data: {
-        // Conversions explicites des chaînes en types numériques pour Prisma
         user_id: toInt(user_id),
         title,
         description,
-        status: status || 'ouverte', // Utiliser 'ouverte' par défaut si le statut n'est pas fourni
+        status: status || "ouverte",
         intensity,
         location_lat: toFloat(location_lat),
         location_lon: toFloat(location_lon),
@@ -96,21 +121,28 @@ exports.createAlert = async (req, res) => {
 
     res.status(201).json(newAlert);
   } catch (error) {
-    // Afficher l'erreur complète pour le débogage serveur
-    console.error('Erreur lors de la création de l’alerte :', error);
+    console.error("Erreur lors de la création de l’alerte :", error);
 
-    // Si l'erreur est une validation (ex: type incorrect ou catégorie inexistante)
-    if (error.code === 'P2003' || error.name === 'PrismaClientValidationError') {
-      return res.status(400).json({ error: 'Erreur de validation Prisma. Vérifiez les types de données ou l\'existence de la catégorie/user_id.', details: error.message });
+    if (error.code === "P2003") {
+      return res.status(400).json({
+        error: "Catégorie ou user_id inexistant.",
+      });
     }
 
-    res.status(500).json({ error: 'Erreur serveur lors de la création' });
+    if (error.name === "PrismaClientValidationError") {
+      return res.status(400).json({
+        error: "Erreur de validation Prisma.",
+        details: error.message,
+      });
+    }
+
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-// ---
-// UPDATE alert
-// ---
+/* ========================================
+   PUT /api/alerts/:id_alert/:user_id
+======================================== */
 exports.updateAlert = async (req, res) => {
   const { id_alert, user_id } = req.params;
   const {
@@ -131,7 +163,6 @@ exports.updateAlert = async (req, res) => {
           user_id: toInt(user_id),
         },
       },
-      // Utilisation d'une structure conditionnelle pour ne mettre à jour que les champs présents
       data: {
         ...(title && { title }),
         ...(description && { description }),
@@ -145,19 +176,21 @@ exports.updateAlert = async (req, res) => {
 
     res.json(updatedAlert);
   } catch (error) {
-    console.error('Erreur lors de la mise à jour de l’alerte :', error);
+    console.error("Erreur lors de la mise à jour de l’alerte :", error);
 
-    if (error.code === 'P2025') { // Code d'erreur pour "Record not found"
-      return res.status(404).json({ error: 'Alerte non trouvée pour cette clé composite.' });
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        error: "Alerte non trouvée pour cette clé composite.",
+      });
     }
 
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
 
-// ---
-// DELETE alert
-// ---
+/* ========================================
+   DELETE /api/alerts/:id_alert/:user_id
+======================================== */
 exports.deleteAlert = async (req, res) => {
   const { id_alert, user_id } = req.params;
 
@@ -171,14 +204,16 @@ exports.deleteAlert = async (req, res) => {
       },
     });
 
-    res.status(204).send(); // 204 No Content pour une suppression réussie
+    res.status(204).send();
   } catch (error) {
-    console.error('Erreur lors de la suppression de l’alerte :', error);
+    console.error("Erreur lors de la suppression de l’alerte :", error);
 
-    if (error.code === 'P2025') { // Code d'erreur pour "Record not found"
-      return res.status(404).json({ error: 'Alerte non trouvée pour cette clé composite.' });
+    if (error.code === "P2025") {
+      return res.status(404).json({
+        error: "Alerte non trouvée pour cette clé composite.",
+      });
     }
 
-    res.status(500).json({ error: 'Erreur serveur' });
+    res.status(500).json({ error: "Erreur serveur" });
   }
 };
