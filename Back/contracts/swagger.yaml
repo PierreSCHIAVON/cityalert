@@ -8,7 +8,7 @@ info:
     L'authentification des applications clientes est gérée via le module /api/app.
 
 servers:
-  - url: http://localhost:3000
+  - url: https://cityalert-back.onrender.com
     description: Serveur de développement local
 
 tags:
@@ -381,7 +381,7 @@ paths:
 
   /api/medias:
     get:
-      tags: [ Médias ]
+      tags: [Médias]
       summary: Récupère tous les médias
       responses:
         "200":
@@ -394,7 +394,7 @@ paths:
                   $ref: "#/components/schemas/Media"
 
     post:
-      tags: [ Médias ]
+      tags: [Médias]
       summary: Ajoute un média via une URL pré-uploadée
       description: Le client doit d'abord uploader le fichier sur un service externe puis fournir l'URL résultante.
       requestBody:
