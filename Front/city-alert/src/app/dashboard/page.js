@@ -179,7 +179,7 @@ export default function Dashboard() {
                 
                 <div style={styles.settingItem}>
                   <label style={styles.settingLabel}>Nom d'utilisateur</label>
-                  <div style={styles.settingValue}>{user?.name}</div>
+                  <div style={styles.settingValue}>{user?.app?.name}</div>
                 </div>
                 
                 <div style={styles.settingItem}>
