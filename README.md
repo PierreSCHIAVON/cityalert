@@ -4,7 +4,22 @@
 Ce webservice permet de remonter et gérer des alertes citoyennes signalées par les utilisateurs.
 Elle inclut une documentation interactive générée avec Swagger UI.
 
-## 🧰 Prérequis
+## Technologies utilisées
+
+- Express.js : Le framework Node.js minimaliste et flexible utilisé pour construire l'application et gérer les routes côté serveur.
+
+- Swagger/OpenAPI : Utilisé pour générer une documentation interactive de l'API et permettre des tests manuels simples des endpoints.
+
+- Prisma : L'ORM (Object-Relational Mapper) moderne qui facilite la gestion des schémas de base de données (modèles) et les interactions avec la base de données.
+
+- Supabase : La base de données en ligne (PostgreSQL) utilisée pour stocker les données du projet.
+
+- Vitest : Le framework de test unitaire rapide (basé sur Vite) utilisé pour assurer la qualité et la fiabilité du code de l'application.
+
+
+## ⚙️ Installation du projet
+
+### 🧰 Prérequis
 
 Avant de commencer, assure-toi d’avoir installé :
 
@@ -13,8 +28,6 @@ Node.js
 
 `npm`
  ou `yarn`
-
-## ⚙️ Installation du projet
 
 ### 1️⃣ Cloner le dépôt
 
