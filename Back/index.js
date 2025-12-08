@@ -12,7 +12,7 @@ const app = express();
 const port = 3000;
 
 // Activation de CORS
-app.use(cors()); // <--- AJOUT IMPORTANT
+app.use(cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
