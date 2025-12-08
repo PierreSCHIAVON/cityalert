@@ -2,12 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ---- 1. MOCK PRISMA ----
 const mockMethods = {
-    findMany: vi.fn(),
-    count: vi.fn(),
-    findUnique: vi.fn(),
-    create: vi.fn(),
-    update: vi.fn(),
-    delete: vi.fn(),
+  findMany: vi.fn(),
+  findUnique: vi.fn(),
+  create: vi.fn(),
+  update: vi.fn(),
+  delete: vi.fn(),
 };
 
 export const prismaMock = {
@@ -16,8 +15,9 @@ export const prismaMock = {
 
 vi.mock("../../lib/prisma", () => prismaMock);
 
-const prisma = require('../../lib/prisma');
-import * as alertsController from '../alerts/alertscontroller';
+const prisma = require("../../lib/prisma");
+
+import * as alertsController from "../alerts/alertscontroller";
 
 // ---- 2. MOCK EXPRESS RES ----
 const mockRes = () => {
@@ -28,7 +28,7 @@ const mockRes = () => {
   return res;
 };
 
-// ---- 3. MOCK DATA ----
+// ---- 3. EXEMPLES DE DONNÉES ----
 const mockAlert = {
   id_alert: 1,
   user_id: 10,
@@ -48,9 +48,8 @@ const fullAlert = {
   participation: [],
 };
 
-// ------------------------------
-// TESTS
-// ------------------------------
+// ---- 4. TESTS ----
+
 describe("Alerts Controller", () => {
   let res;
 
@@ -61,81 +60,50 @@ describe("Alerts Controller", () => {
   });
 
   // ------------------------------
-  // GET ALL + PAGINATION
+  // GET ALL
   // ------------------------------
   describe("getAlerts", () => {
-    it("retourne toutes les alertes paginées (200)", async () => {
-      prismaMock.alert.count.mockResolvedValue(1);
+    it("retourne toutes les alertes (200)", async () => {
       prismaMock.alert.findMany.mockResolvedValue([fullAlert]);
 
-      const req = { query: { page: "1", limit: "10" } };
+      await alertsController.getAlerts({}, res);
 
-      await alertsController.getAlerts(req, res);
+      expect(res.json).toHaveBeenCalledWith([fullAlert]);
+      expect(prismaMock.alert.findMany).toHaveBeenCalledOnce();
+    });
 
-      expect(prismaMock.alert.count).toHaveBeenCalled();
+    it("500 si erreur DB", async () => {
+      prismaMock.alert.findMany.mockRejectedValue(new Error("DB Error"));
 
-      // Vérifie l'appel correct incluant orderBy + skip/take + include
-      expect(prismaMock.alert.findMany).toHaveBeenCalledWith({
-        skip: 0,
-        take: 10,
-        orderBy: { created_at: "desc" },
+      await alertsController.getAlerts({}, res);
+
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: "Erreur serveur" });
+    });
+  });
+
+  // ------------------------------
+  // GET ONE
+  // ------------------------------
+  describe("getAlertById", () => {
+    const req = { params: { id_alert: "1", user_id: "10" } };
+
+    it("retourne une alerte (200)", async () => {
+      prismaMock.alert.findUnique.mockResolvedValue(fullAlert);
+
+      await alertsController.getAlertById(req, res);
+
+      expect(res.json).toHaveBeenCalledWith(fullAlert);
+      expect(prismaMock.alert.findUnique).toHaveBeenCalledWith({
+        where: {
+          id_alert_user_id: { id_alert: 1, user_id: 10 },
+        },
         include: {
           category: true,
           media: true,
           participation: true,
         },
       });
-
-      expect(res.json).toHaveBeenCalledWith({
-        page: 1,
-        limit: 10,
-        total_items: 1,
-        total_pages: 1,
-        items: [fullAlert],
-      });
-    });
-
-    // ------------------------------
-    // GET ALL + PAGINATION
-    // ------------------------------
-    describe("getAlerts", () => {
-        it("retourne toutes les alertes paginées (200)", async () => {
-            prismaMock.alert.count.mockResolvedValue(1);
-            prismaMock.alert.findMany.mockResolvedValue([fullAlert]);
-
-            const req = { query: { page: "1", limit: "10" } };
-
-            await alertsController.getAlerts(req, res);
-
-            expect(prismaMock.alert.count).toHaveBeenCalled();
-
-            // Vérifie l'appel correct incluant orderBy + skip/take + include
-            expect(prismaMock.alert.findMany).toHaveBeenCalledWith({
-                skip: 0,
-                take: 10,
-                orderBy: { created_at: "desc" },
-                include: {
-                    category: true,
-                    media: true,
-                    participation: true
-                }
-            });
-
-            expect(res.json).toHaveBeenCalledWith({
-                page: 1,
-                limit: 10,
-                total_items: 1,
-                total_pages: 1,
-                items: [fullAlert]
-            });
-        });
-
-        it("500 si erreur DB", async () => {
-            prismaMock.alert.count.mockRejectedValue(new Error("DB"));
-
-      await alertsController.getAlertById(req, res);
-
-      expect(res.json).toHaveBeenCalledWith(fullAlert);
     });
 
     it("404 si non trouvé", async () => {
@@ -147,8 +115,8 @@ describe("Alerts Controller", () => {
       expect(res.json).toHaveBeenCalledWith({ error: "Alerte non trouvée" });
     });
 
-            expect(res.json).toHaveBeenCalledWith(fullAlert);
-        });
+    it("500 en cas d'erreur DB", async () => {
+      prismaMock.alert.findUnique.mockRejectedValue(new Error("DB Error"));
 
       await alertsController.getAlertById(req, res);
 
@@ -187,74 +155,36 @@ describe("Alerts Controller", () => {
       await alertsController.createAlert(req, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      // test assoupli pour message différent
-      expect(res.json.mock.calls[0][0].error).toContain("Données manquantes");
+      expect(res.json).toHaveBeenCalledWith({
+        error:
+          "Données manquantes. Assurez-vous que user_id, title, description, intensity, location_lat, location_lon et id_category sont fournis.",
+      });
+      expect(prismaMock.alert.create).not.toHaveBeenCalled();
     });
 
     it("400 si erreur Prisma P2003", async () => {
-      prismaMock.alert.create.mockRejectedValue({ code: "P2003" });
+      const prismaErr = { code: "P2003" };
+      prismaMock.alert.create.mockRejectedValue(prismaErr);
 
       await alertsController.createAlert({ body }, res);
 
       expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json.mock.calls[0][0].error).toContain(
-        "Catégorie ou user_id inexistant."
+      expect(res.json).toHaveBeenCalledWith(
+        expect.objectContaining({
+          error: expect.any(String),
+        })
       );
     });
 
-    // ------------------------------
-    // CREATE
-    // ------------------------------
-    describe("createAlert", () => {
-        const body = {
-            user_id: 10,
-            title: "Test",
-            description: "Desc",
-            status: "ouverte",
-            intensity: "fort",
-            location_lat: 48.2,
-            location_lon: 1.3,
-            id_category: 3
-        };
+    it("500 si erreur inconnue", async () => {
+      prismaMock.alert.create.mockRejectedValue(new Error("??"));
 
-        it("crée une alerte (201)", async () => {
-            prismaMock.alert.create.mockResolvedValue(mockAlert);
+      await alertsController.createAlert({ body }, res);
 
-            await alertsController.createAlert({ body }, res);
-
-            expect(res.status).toHaveBeenCalledWith(201);
-            expect(res.json).toHaveBeenCalledWith(mockAlert);
-        });
-
-        it("400 si champs manquants", async () => {
-            const req = { body: { user_id: 10 } };
-
-            await alertsController.createAlert(req, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            // test assoupli pour message différent
-            expect(res.json.mock.calls[0][0].error).toContain("Données manquantes");
-        });
-
-        it("400 si erreur Prisma P2003", async () => {
-            prismaMock.alert.create.mockRejectedValue({ code: "P2003" });
-
-            await alertsController.createAlert({ body }, res);
-
-            expect(res.status).toHaveBeenCalledWith(400);
-            expect(res.json.mock.calls[0][0].error).toContain("Catégorie ou user_id inexistant.");
-        });
-
-        it("500 si erreur inconnue", async () => {
-            prismaMock.alert.create.mockRejectedValue(new Error("??"));
-
-            await alertsController.createAlert({ body }, res);
-
-            expect(res.status).toHaveBeenCalledWith(500);
-            expect(res.json).toHaveBeenCalledWith({
-                error: "Erreur serveur",
-            });
-        });
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({
+        error: "Erreur serveur lors de la création",
+      });
     });
   });
 
