@@ -117,10 +117,10 @@ export default function Home() {
             {message && !isRightPanelActive && <p style={{color: 'green', fontSize: '14px'}}>{message}</p>}
             
             <input 
-              type="email" 
-              placeholder="Email" 
-              value={signupEmail}
-              onChange={(e) => setSignupEmail(e.target.value)}
+              type="text" 
+              placeholder="Nom" 
+              value={signupName}
+              onChange={(e) => setSignupName(e.target.value)}
               required
               disabled={loading}
             />
@@ -149,10 +149,10 @@ export default function Home() {
             {message && isRightPanelActive && <p style={{color: 'green', fontSize: '14px'}}>{message}</p>}
             
             <input 
-              type="email" 
-              placeholder="Email" 
-              value={loginEmail}
-              onChange={(e) => setLoginEmail(e.target.value)}
+              type="text" 
+              placeholder="Nom" 
+              value={loginName}
+              onChange={(e) => setLoginName(e.target.value)}
               required
               disabled={loading}
             />
