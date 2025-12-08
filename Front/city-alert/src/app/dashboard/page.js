@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState } from 'react';
+import React, { use, useState } from 'react';
 
 
 
@@ -14,6 +14,11 @@ export default function Dashboard() {
 
   const { user, logout } = useAuth();
 
+  useEffect(() => {
+    if (user && user.app.key_hash) {
+        setApiKey(user.app.key_hash);
+    }
+    }, [user]);
 
   const generateApiKey = async () => {
       try {
@@ -22,8 +27,11 @@ export default function Dashboard() {
           headers: {
             'Content-Type': 'application/json',
           },
-          credentials: 'include',
-          body: JSON.stringify({ apiKey: key }),
+          //credentials: 'include',
+          body: JSON.stringify({
+            "user_id": user?.app.user_id,
+            "name": user?.app.name
+            }),
           
         });
         return await response.json();
@@ -74,6 +82,9 @@ export default function Dashboard() {
           >
             <span style={styles.icon}>🏠</span>
             Accueil
+            <p>
+                Bienvenue, {user?.app.name} !
+            </p>
           </button>
           
           <button
@@ -173,10 +184,17 @@ export default function Dashboard() {
                 
                 <div style={styles.settingItem}>
                   <label style={styles.settingLabel}>Statut de votre clé API</label>
-                  <div style={styles.statusBadge}>
-                    <span style={styles.statusDot}></span>
-                    Actif
-                  </div>
+                  {user?.app?.is_active ? (
+                    <div style={styles.statusBadge}>
+                      <span style={styles.statusDot}></span>
+                      Actif
+                    </div>
+                  ) : (
+                    <div style={styles.statusBadge}>
+                      <span style={styles.statusDot}></span>
+                      Inactif
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
