@@ -12,7 +12,12 @@ const app = express();
 const port = 3000;
 
 // Activation de CORS
-app.use(cors());
+app.use(cors(
+  {
+    origin: "*", // Remplacez par l'URL de votre front-end
+    credentials: true, // Autoriser les cookies
+  }
+));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
