@@ -11,11 +11,16 @@ const appRouter = require("./api/app/approuter");
 const app = express();
 const port = 3000;
 
-// Activation de CORS
+//CORS
 app.use(cors({
-  origin:'*'
-}
-));
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
+
+// Gérer explicitement les requêtes OPTIONS (préflight)
+app.options('*', cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
