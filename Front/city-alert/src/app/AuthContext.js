@@ -49,6 +49,8 @@ export const AuthProvider = ({ children }) => {
 
     if (response.ok) {
       setUser(data.user);
+      console.log('User authenticated DATA:', data);
+      console.log('User authenticated:', data.user);
       return { success: true };
     } else {
       return { success: false, message: data.message || 'Erreur de connexion' };
