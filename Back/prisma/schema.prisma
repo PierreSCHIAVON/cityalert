@@ -28,8 +28,6 @@ model alert {
 model api_key {
   id_api_key   Int       @default(autoincrement())
   user_id      Int       @default(autoincrement())
-  id_api_key   Int       @default(autoincrement())
-  user_id      Int       @default(autoincrement())
   key_hash     String    @unique
   name         String?   @unique @db.VarChar(100)
   created_at   DateTime? @db.Timestamp(6)
