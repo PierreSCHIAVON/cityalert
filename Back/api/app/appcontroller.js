@@ -7,7 +7,7 @@ exports.registerApp = async (req, res) => {
 
   try {
     // Hash du mot de passe
-    const hashedPassword = await bcrypt.hash(password, 12); 
+    const hashedPassword = await bcrypt.hash(password, 12);
 
     // Création dans la base
     const newApp = await prisma.api_key.create({
@@ -21,14 +21,11 @@ exports.registerApp = async (req, res) => {
     const { password: _, ...newAppSanitized } = newApp;
 
     res.status(201).json(newAppSanitized);
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
-
-
 
 exports.loginApp = async (req, res) => {
   const { name, password } = req.body;
@@ -46,7 +43,7 @@ exports.loginApp = async (req, res) => {
     // Stockage du refresh token en base
     await prisma.api_key.update({
       where: { user_id: app.user_id },
-      data: { refreshToken }
+      data: { refresh_token: refreshToken },
     });
 
     const { password: _, ...appSanitized } = app;
@@ -54,15 +51,13 @@ exports.loginApp = async (req, res) => {
     res.json({
       app: appSanitized,
       accessToken,
-      refreshToken
+      refreshToken,
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur serveur" });
   }
 };
-
 
 exports.getAppInfo = async (req, res) => {
   const appId = req.app.user_id;
@@ -74,7 +69,7 @@ exports.getAppInfo = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Erreur serveur" });
-  } 
+  }
 };
 
 exports.refreshToken = async (req, res) => {
@@ -83,7 +78,9 @@ exports.refreshToken = async (req, res) => {
 
   try {
     // Vérifier que le refresh token existe en base
-    const app = await prisma.api_key.findFirst({ where: { refresh_token: token } });
+    const app = await prisma.api_key.findFirst({
+      where: { refresh_token: token },
+    });
     if (!app) return res.status(403).json({ error: "Refresh token invalide" });
 
     // Vérifier la signature du token
@@ -93,10 +90,8 @@ exports.refreshToken = async (req, res) => {
     const newAccessToken = generateAccessToken(app);
 
     res.json({ accessToken: newAccessToken });
-
   } catch (error) {
     console.error(error);
     res.status(403).json({ error: "Refresh token expiré ou invalide" });
   }
 };
-

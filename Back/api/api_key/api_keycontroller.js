@@ -14,7 +14,10 @@ const createApiKey = async (req, res) => {
 
     // Vérifie si l'utilisateur a déjà une clé
     const existingKey = await prisma.api_key.findFirst({
-      where: { user_id: parseInt(user_id) },
+      where: {
+        user_id: parseInt(user_id),
+        key_hash: { not: null },
+      },
     });
 
     if (existingKey) {
@@ -27,11 +30,12 @@ const createApiKey = async (req, res) => {
     // Hash de la clé
     const key_hash = await bcrypt.hash(raw_key, 10);
 
-    const newKey = await prisma.api_key.create({
-      data: {
+    const newKey = await prisma.api_key.update({
+      where: {
         user_id: parseInt(user_id),
+      },
+      data: {
         key_hash,
-        name,
         created_at: new Date(),
         last_used_at: null, // initialisation
         is_active: true,
