@@ -1,11 +1,11 @@
 openapi: 3.0.0
 info:
   title: API Alertes Citoyennes
-  version: 1.0.2
+  version: 1.0.1
   description: >
     API permettant de remonter et gérer des alertes citoyennes, leurs catégories,
-    leurs médias associés, les participations des citoyens, et la gestion des clés API.
-    L'authentification est gérée par un autre service — aucune authentification JWT n'est requise ici.
+    leurs médias associés, et les participations des citoyens.
+    L'authentification des applications clientes est gérée via le module /api/app.
 
 servers:
   - url: http://localhost:3000
@@ -22,8 +22,6 @@ tags:
     description: Gestion des médias associés aux alertes
   - name: Participations
     description: Participations des citoyens aux alertes
-  - name: API Keys
-    description: Gestion des clés API pour les utilisateurs
 
 paths:
   ############################
@@ -382,7 +380,7 @@ paths:
 
   /api/medias:
     get:
-      tags: [Médias]
+      tags: [ Médias ]
       summary: Récupère tous les médias
       responses:
         "200":
@@ -395,13 +393,13 @@ paths:
                   $ref: "#/components/schemas/Media"
 
     post:
-      tags: [Médias]
+      tags: [ Médias ]
       summary: Ajoute un média via une URL pré-uploadée
       description: Le client doit d'abord uploader le fichier sur un service externe puis fournir l'URL résultante.
       requestBody:
         required: true
         content:
-          application/json:
+          application/json: # CHANGEMENT: Le corps est JSON
             schema:
               $ref: "#/components/schemas/MediaInput"
       responses:
