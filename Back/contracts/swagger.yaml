@@ -26,7 +26,6 @@ tags:
     description: Gestion des clés API pour les utilisateurs
 
 paths:
-
   ############################
   # APP AUTH
   ############################
@@ -51,15 +50,14 @@ paths:
                 - name
                 - password
       responses:
-        '201':
+        "201":
           description: Application créée avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/App'
-        '500':
+                $ref: "#/components/schemas/App"
+        "500":
           description: Erreur serveur
-
 
   /api/app/login:
     post:
@@ -81,7 +79,7 @@ paths:
                 - name
                 - password
       responses:
-        '200':
+        "200":
           description: Connexion réussie
           content:
             application/json:
@@ -89,18 +87,17 @@ paths:
                 type: object
                 properties:
                   app:
-                    $ref: '#/components/schemas/App'
+                    $ref: "#/components/schemas/App"
                   accessToken:
                     type: string
                   refreshToken:
                     type: string
-        '400':
+        "400":
           description: Mot de passe incorrect
-        '404':
+        "404":
           description: Application inconnue
-        '500':
+        "500":
           description: Erreur serveur
-
 
   /api/app/info:
     get:
@@ -109,17 +106,16 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Informations récupérées
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/App'
-        '404':
+                $ref: "#/components/schemas/App"
+        "404":
           description: Application inconnue
-        '500':
+        "500":
           description: Erreur serveur
-
 
   /api/app/refresh-token:
     post:
@@ -138,7 +134,7 @@ paths:
               required:
                 - token
       responses:
-        '200':
+        "200":
           description: Nouveau token généré
           content:
             application/json:
@@ -147,14 +143,12 @@ paths:
                 properties:
                   accessToken:
                     type: string
-        '401':
+        "401":
           description: Refresh token manquant
-        '403':
+        "403":
           description: Refresh token invalide ou expiré
-        '500':
+        "500":
           description: Erreur serveur
-
-
 
   ############################
   # ALERTES
@@ -162,67 +156,83 @@ paths:
   /api/alerts:
     get:
       tags: [Alertes]
-      summary: Récupère la liste des alertes citoyennes
+      summary: Récupère la liste des alertes citoyennes avec pagination
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          description: Numéro de la page
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Nombre d'alertes par page
       responses:
-        '200':
-          description: Liste récupérée avec succès
+        "200":
+          description: Liste paginée des alertes
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Alerte'
-        '500':
+                $ref: "#/components/schemas/AlertePage"
+        "500":
           description: Erreur interne du serveur
 
     post:
       tags: [Alertes]
       summary: Crée une nouvelle alerte citoyenne
+      description: Nécessite le 'user_id' du créateur dans le corps de la requête.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AlerteInput'
+              $ref: "#/components/schemas/AlerteInput"
       responses:
-        '201':
-          description: Alerte créée
+        "201":
+          description: Alerte créée avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Alerte'
-        '400':
+                $ref: "#/components/schemas/Alerte"
+        "400":
           description: Données invalides
-
 
   /api/alerts/{id_alert}/{user_id}:
     get:
       tags: [Alertes]
-      summary: Récupère une alerte par clé composite
+      summary: Récupère une alerte par sa clé composite
       parameters:
         - name: id_alert
           in: path
           required: true
+          description: ID de l'alerte
           schema:
             type: integer
         - name: user_id
           in: path
           required: true
+          description: ID de l'utilisateur qui a créé l'alerte
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Alerte trouvée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Alerte'
-        '404':
+                $ref: "#/components/schemas/Alerte"
+        "404":
           description: Alerte non trouvée
 
     put:
       tags: [Alertes]
-      summary: Met à jour une alerte
+      summary: Met à jour une alerte existante
       parameters:
         - name: id_alert
           in: path
@@ -239,15 +249,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AlerteInput'
+              $ref: "#/components/schemas/AlerteInput"
       responses:
-        '200':
-          description: Alerte mise à jour
+        "200":
+          description: Alerte mise à jour avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Alerte'
-        '404':
+                $ref: "#/components/schemas/Alerte"
+        "404":
           description: Alerte non trouvée
 
     delete:
@@ -265,11 +275,10 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
-          description: Alerte supprimée
-        '404':
+        "204":
+          description: Alerte supprimée avec succès
+        "404":
           description: Alerte non trouvée
-
 
   ############################
   # CATEGORIES
@@ -280,51 +289,51 @@ paths:
       tags: [Catégories]
       summary: Récupère toutes les catégories
       responses:
-        '200':
-          description: Liste récupérée
+        "200":
+          description: Liste des catégories récupérée avec succès
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Categorie'
+                  $ref: "#/components/schemas/Categorie"
 
     post:
       tags: [Catégories]
-      summary: Crée une catégorie
+      summary: Crée une nouvelle catégorie
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategorieInput'
+              $ref: "#/components/schemas/CategorieInput"
       responses:
-        '201':
-          description: Catégorie créée
+        "201":
+          description: Catégorie créée avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Categorie'
-
+                $ref: "#/components/schemas/Categorie"
 
   /api/categories/{id_category}:
     get:
       tags: [Catégories]
-      summary: Récupère une catégorie
+      summary: Récupère une catégorie par ID
       parameters:
         - name: id_category
           in: path
           required: true
+          description: ID de la catégorie
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Catégorie trouvée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Categorie'
-        '404':
+                $ref: "#/components/schemas/Categorie"
+        "404":
           description: Catégorie non trouvée
 
     put:
@@ -341,16 +350,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CategorieInput'
+              $ref: "#/components/schemas/CategorieInput"
       responses:
-        '200':
-          description: Mise à jour effectuée
+        "200":
+          description: Catégorie mise à jour
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Categorie'
-        '404':
-          description: Non trouvée
+                $ref: "#/components/schemas/Categorie"
+        "404":
+          description: Catégorie non trouvée
 
     delete:
       tags: [Catégories]
@@ -362,11 +371,10 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
-          description: Supprimée
-        '404':
-          description: Non trouvée
-
+        "204":
+          description: Catégorie supprimée
+        "404":
+          description: Catégorie non trouvée
 
   ############################
   # MEDIAS
@@ -377,37 +385,37 @@ paths:
       tags: [Médias]
       summary: Récupère tous les médias
       responses:
-        '200':
-          description: Liste récupérée
+        "200":
+          description: Liste des médias
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Media'
+                  $ref: "#/components/schemas/Media"
 
     post:
       tags: [Médias]
       summary: Ajoute un média via une URL pré-uploadée
+      description: Le client doit d'abord uploader le fichier sur un service externe puis fournir l'URL résultante.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MediaInput'
+              $ref: "#/components/schemas/MediaInput"
       responses:
-        '201':
+        "201":
           description: Média ajouté
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Media'
-
+                $ref: "#/components/schemas/Media"
 
   /api/medias/{id_media}:
     get:
       tags: [Médias]
-      summary: Récupère un média
+      summary: Récupère un média par ID
       parameters:
         - name: id_media
           in: path
@@ -415,14 +423,14 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Média trouvé
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Media'
-        '404':
-          description: Non trouvé
+                $ref: "#/components/schemas/Media"
+        "404":
+          description: Média non trouvé
 
     delete:
       tags: [Médias]
@@ -434,11 +442,10 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
-          description: Supprimé
-        '404':
-          description: Non trouvé
-
+        "204":
+          description: Média supprimé
+        "404":
+          description: Média non trouvé
 
   ############################
   # PARTICIPATIONS
@@ -449,37 +456,37 @@ paths:
       tags: [Participations]
       summary: Liste toutes les participations
       responses:
-        '200':
-          description: Liste récupérée
+        "200":
+          description: Liste des participations
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Participation'
+                  $ref: "#/components/schemas/Participation"
 
     post:
       tags: [Participations]
-      summary: Crée une participation
+      summary: Crée une participation à une alerte
+      description: Nécessite les IDs de l'utilisateur participant et de l'alerte ciblée (id_alert et alert_user_id).
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ParticipationInput'
+              $ref: "#/components/schemas/ParticipationInput"
       responses:
-        '201':
+        "201":
           description: Participation créée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Participation'
-
+                $ref: "#/components/schemas/Participation"
 
   /api/participations/{id_participation}:
     get:
       tags: [Participations]
-      summary: Récupère une participation
+      summary: Récupère une participation par ID
       parameters:
         - name: id_participation
           in: path
@@ -487,14 +494,14 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
-          description: Trouvée
+        "200":
+          description: Participation trouvée
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Participation'
-        '404':
-          description: Non trouvée
+                $ref: "#/components/schemas/Participation"
+        "404":
+          description: Participation non trouvée
 
     delete:
       tags: [Participations]
@@ -506,9 +513,9 @@ paths:
           schema:
             type: integer
       responses:
-        '204':
+        "204":
           description: Participation supprimée
-        '404':
+        "404":
           description: Participation non trouvée
 
   ############################
@@ -526,19 +533,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ApiKeyInput'
+              $ref: "#/components/schemas/ApiKeyInput"
       responses:
-        '201':
+        "201":
           description: Clé API créée avec succès
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ApiKeyCreated'
-        '400':
+                $ref: "#/components/schemas/ApiKeyCreated"
+        "400":
           description: Données invalides (user_id manquant)
-        '409':
+        "409":
           description: L'utilisateur possède déjà une clé API
-        '500':
+        "500":
           description: Erreur interne du serveur
 
   /api/api_keys/{user_id}:
@@ -556,16 +563,16 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Clé API trouvée ou null
           content:
             application/json:
               schema:
                 oneOf:
-                  - $ref: '#/components/schemas/ApiKey'
+                  - $ref: "#/components/schemas/ApiKey"
                   - type: object
                     nullable: true
-        '500':
+        "500":
           description: Erreur interne du serveur
     delete:
       tags: [API Keys]
@@ -578,7 +585,7 @@ paths:
           schema:
             type: integer
       responses:
-        '200':
+        "200":
           description: Clé API supprimée avec succès
           content:
             application/json:
@@ -588,13 +595,12 @@ paths:
                   message:
                     type: string
                     example: API key deleted.
-        '404':
+        "404":
           description: Aucune clé API trouvée pour cet utilisateur
-        '500':
+        "500":
           description: Erreur interne du serveur
 
 components:
-
   securitySchemes:
     bearerAuth:
       type: http
@@ -602,7 +608,6 @@ components:
       bearerFormat: JWT
 
   schemas:
-
     #######################
     # APP
     #######################
@@ -649,36 +654,48 @@ components:
       properties:
         id_alert:
           type: integer
+          description: Identifiant unique de l'alerte
         user_id:
           type: integer
+          description: Identifiant de l'utilisateur qui a créé l'alerte (clé composite)
         title:
           type: string
+          description: Titre de l'alerte
         description:
           type: string
+          description: Description détaillée de l'alerte
         status:
           type: string
+          description: Statut actuel de l'alerte
           enum: [ouverte, en_cours, resolue]
         intensity:
           type: string
+          description: Niveau d'intensité ou d'urgence de l'alerte
         created_at:
           type: string
           format: date-time
+          description: Date et heure de création de l'alerte
         location_lat:
           type: number
+          format: double
+          description: Latitude de la localisation de l'alerte
         location_lon:
           type: number
+          format: double
+          description: Longitude de la localisation de l'alerte
         id_category:
           type: integer
+          description: Identifiant de la catégorie associée
         category:
-          $ref: '#/components/schemas/Categorie'
+          $ref: "#/components/schemas/Categorie"
         media:
           type: array
           items:
-            $ref: '#/components/schemas/Media'
+            $ref: "#/components/schemas/Media"
         participation:
           type: array
           items:
-            $ref: '#/components/schemas/Participation'
+            $ref: "#/components/schemas/Participation"
       required:
         - id_alert
         - user_id
@@ -696,21 +713,32 @@ components:
       properties:
         user_id:
           type: integer
+          description: Identifiant de l'utilisateur créateur (clé composite nécessaire pour POST/PUT)
         title:
           type: string
+          description: Titre de la nouvelle alerte
         description:
           type: string
+          description: Description détaillée
         status:
           type: string
+          description: Statut initial de l'alerte
           enum: [ouverte, en_cours, resolue]
+          default: ouverte
         intensity:
           type: string
+          description: Niveau d'intensité
         location_lat:
           type: number
+          format: double
+          description: Latitude de la localisation
         location_lon:
           type: number
+          format: double
+          description: Longitude de la localisation
         id_category:
           type: integer
+          description: Identifiant de la catégorie
       required:
         - user_id
         - title
@@ -720,6 +748,26 @@ components:
         - location_lon
         - id_category
 
+    AlertePage:
+      type: object
+      properties:
+        page:
+          type: integer
+          description: Numéro de la page actuelle
+        limit:
+          type: integer
+          description: Nombre d'éléments par page
+        total_items:
+          type: integer
+          description: Nombre total d'alertes
+        total_pages:
+          type: integer
+          description: Nombre total de pages
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/Alerte"
+
     #######################
     # Catégorie
     #######################
@@ -728,8 +776,10 @@ components:
       properties:
         id_category:
           type: integer
+          description: Identifiant unique de la catégorie
         title:
           type: string
+          description: Nom ou titre de la catégorie
       required:
         - id_category
         - title
@@ -739,6 +789,7 @@ components:
       properties:
         title:
           type: string
+          description: Nom ou titre de la catégorie
       required:
         - title
 
@@ -750,17 +801,24 @@ components:
       properties:
         id_media:
           type: integer
+          description: Identifiant unique du média
         file_type:
           type: string
+          description: Type de fichier
         file_url:
           type: string
+          format: uri
+          description: URL du fichier média
         uploaded_at:
           type: string
           format: date-time
+          description: Date et heure de l'upload
         id_alert:
           type: integer
+          description: Identifiant de l'alerte associée (clé composite)
         user_id:
           type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte associée (clé composite)
       required:
         - id_media
         - file_url
@@ -772,12 +830,17 @@ components:
       properties:
         file_url:
           type: string
+          format: uri
+          description: URL publique du fichier média
         file_type:
           type: string
+          description: Type du média
         id_alert:
           type: integer
+          description: Identifiant de l'alerte à laquelle le média est associé
         user_id:
           type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte (clé composite)
       required:
         - file_url
         - file_type
@@ -792,17 +855,23 @@ components:
       properties:
         id_participation:
           type: integer
+          description: Identifiant unique de la participation
         user_id:
           type: integer
+          description: Identifiant de l'utilisateur qui participe
         response:
           type: string
+          description: Message de la participation (réponse)
         date_response:
           type: string
           format: date-time
+          description: Date et heure de la participation
         id_alert:
           type: integer
+          description: Identifiant de l'alerte associée
         alert_user_id:
           type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte associée (clé composite)
       required:
         - id_participation
         - user_id
@@ -815,12 +884,16 @@ components:
       properties:
         user_id:
           type: integer
+          description: Identifiant de l'utilisateur qui participe
         response:
           type: string
+          description: Message de la participation
         id_alert:
           type: integer
+          description: Identifiant de l'alerte concernée
         alert_user_id:
           type: integer
+          description: Identifiant de l'utilisateur créateur de l'alerte concernée
       required:
         - user_id
         - id_alert
