@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors"); // <--- AJOUT ICI
 const setupSwagger = require("./swagger");
 const alertsRouter = require("./api/alerts/alertsroutes");
 const mediaRouter = require("./api/medias/mediasroutes");
@@ -10,11 +11,11 @@ const appRouter = require("./api/app/approuter");
 const app = express();
 const port = 3000;
 
+// Activation de CORS
+app.use(cors()); // <--- AJOUT IMPORTANT
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// Middleware pour parser le JSON
-app.use(express.json());
 
 // Initialisation de Swagger
 setupSwagger(app);
