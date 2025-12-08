@@ -2,18 +2,18 @@
 
 import React, { useState } from 'react';
 
-import { useSession, signOut } from "next-auth/react"
+
+
+import ProtectedRoute from '../ProtectedRoute';
+import { useAuth } from '../AuthContext';
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('home');
   const [apiKey, setApiKey] = useState(null);
   const [userName] = useState('John Doe');
 
-  const { data: session, status } = useSession()
+  const { user, logout } = useAuth();
 
-  if (status === "loading") {
-    return <div>Chargement...</div>
-  }
 
   const generateApiKey = async () => {
       try {
@@ -44,6 +44,7 @@ export default function Dashboard() {
   ];
 
   return (
+    <ProtectedRoute>
     <div style={styles.container}>
       <style>{`
         @import url('https://fonts.googleapis.com/css?family=Montserrat:400,600,800');
@@ -167,7 +168,7 @@ export default function Dashboard() {
                 
                 <div style={styles.settingItem}>
                   <label style={styles.settingLabel}>Nom d'utilisateur</label>
-                  <div style={styles.settingValue}>{session?.user?.name}</div>
+                  <div style={styles.settingValue}>{user?.name}</div>
                 </div>
                 
                 <div style={styles.settingItem}>
@@ -183,6 +184,7 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+  </ProtectedRoute>
   );
 }
 

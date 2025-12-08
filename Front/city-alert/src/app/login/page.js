@@ -1,22 +1,33 @@
 "use client"
-import { useState } from 'react';
-import { signIn } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import './style.css'
+import { useAuth } from './AuthContext';
+import './style.css';
 
 export default function Home() {
   const router = useRouter();
+  const { login, register, user } = useAuth();
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
   
+  // États pour l'inscription
   const [signupName, setSignupName] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   
+  // États pour la connexion
   const [loginName, setLoginName] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   
+  // États pour les messages
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Rediriger si déjà connecté
+  useEffect(() => {
+    if (user) {
+      router.push('/dashboard');
+    }
+  }, [user, router]);
 
   const togglePanel = () => {
     setIsRightPanelActive(!isRightPanelActive);
@@ -31,36 +42,17 @@ export default function Home() {
     setMessage('');
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/app/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: signupName,
-          password: signupPassword,
-        }),
-      });
+      const result = await register(signupName, signupPassword);
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (result.success) {
         setMessage('Compte créé avec succès !');
         setSignupName('');
         setSignupPassword('');
-        
-        // Connexion automatique après inscription
-        const result = await signIn('credentials', {
-          name: signupName,
-          password: signupPassword,
-          redirect: false,
-        });
-
-        if (result?.ok) {
+        setTimeout(() => {
           router.push('/dashboard');
-        }
+        }, 500);
       } else {
-        setError(data.message || 'Erreur lors de la création du compte');
+        setError(result.message);
       }
     } catch (err) {
       setError('Erreur de connexion au serveur');
@@ -76,17 +68,15 @@ export default function Home() {
     setMessage('');
 
     try {
-      const result = await signIn('credentials', {
-        name: loginName,
-        password: loginPassword,
-        redirect: false,
-      });
+      const result = await login(loginName, loginPassword);
 
-      if (result?.ok) {
+      if (result.success) {
         setMessage('Connexion réussie !');
-        router.push('/dashboard');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 500);
       } else {
-        setError('Nom ou mot de passe incorrect');
+        setError(result.message);
       }
     } catch (err) {
       setError('Erreur de connexion au serveur');
@@ -103,8 +93,8 @@ export default function Home() {
           <h1>Créer un compte</h1>
           <div className="social-container"></div>
           
-          {error && !isRightPanelActive && <p style={{color: 'red', fontSize: '14px'}}>{error}</p>}
-          {message && !isRightPanelActive && <p style={{color: 'green', fontSize: '14px'}}>{message}</p>}
+          {error && !isRightPanelActive && <p style={{color: 'red', fontSize: '14px', marginTop: '10px'}}>{error}</p>}
+          {message && !isRightPanelActive && <p style={{color: 'green', fontSize: '14px', marginTop: '10px'}}>{message}</p>}
           
           <input 
             type="text" 
@@ -121,6 +111,7 @@ export default function Home() {
             onChange={(e) => setSignupPassword(e.target.value)}
             required
             disabled={loading}
+            minLength={6}
           />
           <div className="social-container"></div>
           <button type="submit" disabled={loading}>
@@ -135,8 +126,8 @@ export default function Home() {
           <h1>Connexion</h1> 
           <div className="social-container"></div>
           
-          {error && isRightPanelActive && <p style={{color: 'red', fontSize: '14px'}}>{error}</p>}
-          {message && isRightPanelActive && <p style={{color: 'green', fontSize: '14px'}}>{message}</p>}
+          {error && isRightPanelActive && <p style={{color: 'red', fontSize: '14px', marginTop: '10px'}}>{error}</p>}
+          {message && isRightPanelActive && <p style={{color: 'green', fontSize: '14px', marginTop: '10px'}}>{message}</p>}
           
           <input 
             type="text" 
@@ -165,7 +156,7 @@ export default function Home() {
         <div className="overlay">
           <div className="overlay-panel overlay-left">
             <h1>Bienvenue !</h1>
-            <p>Veuillez créer votre compte avec vos informations personnelles</p>
+            <p>Connectez-vous avec vos informations personnelles</p>
             <button className="ghost" onClick={togglePanel} type="button">Se connecter</button>
           </div>
           <div className="overlay-panel overlay-right">
@@ -178,3 +169,5 @@ export default function Home() {
     </div>
   );
 }
+
+// app/page.js - Sauvegardez ce fichier dans app/page.js
