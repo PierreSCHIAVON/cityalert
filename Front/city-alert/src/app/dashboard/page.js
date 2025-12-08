@@ -2,10 +2,18 @@
 
 import React, { useState } from 'react';
 
+import { useSession, signOut } from "next-auth/react"
+
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('home');
   const [apiKey, setApiKey] = useState(null);
   const [userName] = useState('John Doe');
+
+  const { data: session, status } = useSession()
+
+  if (status === "loading") {
+    return <div>Chargement...</div>
+  }
 
   const generateApiKey = async () => {
       try {
@@ -159,12 +167,7 @@ export default function Dashboard() {
                 
                 <div style={styles.settingItem}>
                   <label style={styles.settingLabel}>Nom d'utilisateur</label>
-                  <div style={styles.settingValue}>{userName}</div>
-                </div>
-                
-                <div style={styles.settingItem}>
-                  <label style={styles.settingLabel}>Email</label>
-                  <div style={styles.settingValue}>john.doe@example.com</div>
+                  <div style={styles.settingValue}>{session?.user?.name}</div>
                 </div>
                 
                 <div style={styles.settingItem}>
