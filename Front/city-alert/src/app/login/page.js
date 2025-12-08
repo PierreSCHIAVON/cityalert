@@ -10,11 +10,11 @@ export default function Home() {
   const [isRightPanelActive, setIsRightPanelActive] = useState(false);
   
   // États pour l'inscription
-  const [signupEmail, setSignupEmail] = useState('');
+  const [signupName, setSignupName] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
   
   // États pour la connexion
-  const [loginEmail, setLoginEmail] = useState('');
+  const [loginName, setLoginName] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   
   // États pour les messages
