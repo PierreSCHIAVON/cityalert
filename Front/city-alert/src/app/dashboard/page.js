@@ -13,8 +13,8 @@ export default function Dashboard() {
   const { user, logout } = useAuth();
 
   useEffect(() => {
-    if (user && user.app.key_hash) {
-        setApiKey(user.app.key_hash);
+    if (user && user.app?.key_hash) {
+        setApiKey(user?.app?.key_hash);
     }
     }, [user]);
 
