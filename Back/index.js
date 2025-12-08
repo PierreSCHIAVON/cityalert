@@ -19,9 +19,6 @@ app.use(cors({
   credentials: false
 }));
 
-// Gérer explicitement les requêtes OPTIONS (préflight)
-app.options('*', cors());
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
