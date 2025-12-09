@@ -8,8 +8,11 @@ info:
     L'authentification des applications clientes est gérée via le module /api/app.
 
 servers:
-  - url: https://cityalert-back.onrender.com
+  - url: http://localhost:3000
     description: Serveur de développement local
+
+security:
+  - apiKeyAuth: []
 
 tags:
   - name: App
@@ -605,6 +608,10 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    apiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
 
   schemas:
     #######################

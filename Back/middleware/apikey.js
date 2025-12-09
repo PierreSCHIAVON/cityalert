@@ -9,42 +9,45 @@ const apiKeyAuth = async (req, res, next) => {
       return res.status(401).json({ error: "API Key missing." });
     }
 
-    // Récupère la clé active
-    const apiKeyRecord = await prisma.api_key.findFirst({
+    // Récupère les clés actives
+    const apiKeyRecords = await prisma.api_key.findMany({
       where: { is_active: true },
     });
 
-    if (!apiKeyRecord) {
+    if (apiKeyRecords.length === 0) {
       return res.status(401).json({ error: "Invalid API Key." });
     }
 
-    // Vérification du hash
-    const match = await bcrypt.compare(apiKey, apiKeyRecord.key_hash);
+    // Vérifie le hash pour chaque clé
+    let matchedKey = null;
+    for (const record of apiKeyRecords) {
+      const match = await bcrypt.compare(apiKey, record.key_hash);
+      if (match) {
+        matchedKey = record;
+        break;
+      }
+    }
 
-    if (!match) {
+    if (!matchedKey) {
       return res.status(401).json({ error: "Invalid API Key." });
     }
 
     // Vérifie l'expiration
-    if (apiKeyRecord.expires_at && new Date() > apiKeyRecord.expires_at) {
+    if (matchedKey.expires_at && new Date() > matchedKey.expires_at) {
       return res.status(401).json({ error: "API Key expired." });
     }
 
-    // Update last_used_at
     await prisma.api_key.update({
       where: {
-        id_api_key_user_id: {
-          id_api_key: apiKeyRecord.id_api_key,
-          user_id: apiKeyRecord.user_id,
-        },
+        user_id: matchedKey.user_id,
       },
       data: { last_used_at: new Date() },
     });
 
     // Attache le user à la requête
     req.apiUser = {
-      user_id: apiKeyRecord.user_id,
-      api_key_id: apiKeyRecord.id_api_key,
+      user_id: matchedKey.user_id,
+      api_key_id: matchedKey.id_api_key,
     };
 
     next();
