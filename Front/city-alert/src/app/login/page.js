@@ -49,7 +49,7 @@ export default function Home() {
         setSignupName('');
         setSignupPassword('');
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push('/login');
         }, 2000);
       } else {
         setError(result.message);
