@@ -23,11 +23,11 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
 
   // Rediriger si déjà connecté
-  useEffect(() => {
+/*   useEffect(() => {
     if (user) {
       router.push('/dashboard');
     }
-  }, [user, router]);
+  }, [user, router]); */
 
   const togglePanel = () => {
     setIsRightPanelActive(!isRightPanelActive);
