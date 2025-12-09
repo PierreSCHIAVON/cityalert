@@ -30,7 +30,11 @@ export default function Dashboard() {
             "name": user?.app.name
             }),
         });
-        return await response.json();
+        const data = await response.json();
+        if(data){
+          setApiKey(data?.api_key?.raw_key);
+        }
+        return data;
       } catch (error) {
         console.error('Erreur lors de la récupération de la clé API:', error);
       }
