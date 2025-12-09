@@ -8,7 +8,7 @@ info:
     L'authentification des applications clientes est gérée via le module /api/app.
 
 servers:
-  - url: https://cityalert-back.onrender.com/api-docs/
+  - url: https://cityalert-back.onrender.com
     description: Serveur de développement local
 
 security:
