@@ -50,7 +50,7 @@ export default function Home() {
         setSignupPassword('');
         setTimeout(() => {
           router.push('/dashboard');
-        }, 500);
+        }, 2000);
       } else {
         setError(result.message);
       }
@@ -75,7 +75,7 @@ export default function Home() {
         setMessage('Connexion réussie !');
         setTimeout(() => {
           router.push('/dashboard');
-        }, 500);
+        }, 2000);
       } else {
         setError(result.message);
       }

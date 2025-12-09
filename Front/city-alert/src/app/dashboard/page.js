@@ -260,9 +260,9 @@ export default function Dashboard() {
                       <button onClick={copyToClipboard} className="copy-button" style={styles.copyButton}>
                         📋 Copier
                       </button>
-                      <button onClick={generateApiKey} className="regenerate-button" style={styles.regenerateButton}>
+                      {/* <button onClick={generateApiKey} className="regenerate-button" style={styles.regenerateButton}>
                         🔄 Régénérer
-                      </button>
+                      </button> */}
                     </div>
                     <div style={styles.warningBox}>
                       <span style={styles.warningIcon}>⚠️</span>
